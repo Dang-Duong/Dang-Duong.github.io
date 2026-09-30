@@ -225,6 +225,7 @@ export async function mountParticles(
   hero: HTMLElement,
   panel: HTMLElement,
   onProgress: (p: number, panelTop: number) => void,
+  onShape: (index: number, total: number) => void,
 ) {
   await document.fonts.load('800 100px "Barlow Condensed"').catch(() => {});
   let renderer: THREE.WebGLRenderer;
@@ -339,6 +340,7 @@ export async function mountParticles(
     (aTo.array as Float32Array).set(shapes[index]);
     aFrom.needsUpdate = aTo.needsUpdate = true;
     uniforms.uT.value = 0;
+    onShape(index, shapes.length);
   };
   hero.addEventListener('click', advance);
 

@@ -37,7 +37,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   <div id="particles" aria-hidden="true"></div>
 
   <main class="hero" id="hero">
-    <p class="label kicker">Swim <span>·</span> Bike <span>·</span> Run <span>·</span> Ship</p>
+    <p class="label kicker" aria-live="polite"><span id="shape-num">01 / 08</span> <span class="accent">·</span> <span id="shape-name">Hi, I'm Duong</span></p>
     <div class="stage"></div>
     <h1><span class="split a">Nguyen Dang</span> <span class="split b accent">Duong</span></h1>
     <div class="wrap meta">
@@ -97,7 +97,15 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     }
     for (const el of fades) el.style.opacity = String(Math.max(0, 1 - p * 1.4));
   };
-  mountParticles(document.getElementById('particles')!, hero, panel, onProgress);
+  const shapeNames = ["Hi, I'm Duong", 'Swim', 'Bike', 'Run', 'Climb', 'Play', 'Learn', 'Build'];
+  const shapeNum = document.getElementById('shape-num')!;
+  const shapeName = document.getElementById('shape-name')!;
+  const onShape = (i: number, total: number) => {
+    shapeNum.textContent = `${String(i + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+    shapeName.textContent = shapeNames[i];
+    if (!still) shapeName.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 450, easing: 'ease-out' });
+  };
+  mountParticles(document.getElementById('particles')!, hero, panel, onProgress, onShape);
   mountCursor(hero);
 
   let glide = 0;
@@ -225,9 +233,12 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     overflow: hidden;
     cursor: pointer;
   }
-  .kicker span {
-    color: var(--accent);
-    margin: 0 6px;
+  .kicker {
+    font-variant-numeric: tabular-nums;
+  }
+  #shape-name {
+    display: inline-block;
+    color: var(--fg);
   }
   #particles {
     position: fixed;
