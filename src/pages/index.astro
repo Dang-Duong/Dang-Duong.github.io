@@ -8,11 +8,6 @@ const stories = [
   { leg: 'Bike', km: '180 km', title: 'Building speed', text: '2025 · Founding engineer at Hostivio & Pultio — AI ID scanning, an iOS app, Stripe payouts.' },
   { leg: 'Run', km: '42.2 km', title: 'Going the distance', text: '2025–26 · Yolk Studio — fintech, AI and mobile products for clients.' },
 ];
-const results = [
-  ['PRs merged', '1,582'],
-  ['Products shipped', '10+'],
-  ['AI features in production', '2'],
-];
 ---
 
 <Base title={`${cv.name} — ${cv.title}`} description={cv.intro}>
@@ -89,16 +84,6 @@ const results = [
       <div class="wrap results">
         <p class="label"><span class="accent">●</span> Official result · Finisher</p>
         <h2>Finish line. <span class="accent">BSc 2026.</span></h2>
-        <div class="tiles">
-          {
-            results.map(([label, val]) => (
-              <div class="tile">
-                <p class="val">{val}</p>
-                <p class="label">{label}</p>
-              </div>
-            ))
-          }
-        </div>
         <p class="label next">Next race: <span class="accent">your team?</span> Keep scrolling ↓</p>
       </div>
 
@@ -413,24 +398,6 @@ const results = [
     font-size: clamp(44px, 7vw, 104px);
     margin: 12px 0 24px;
   }
-  .tiles {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-  .tile {
-    border: 1px solid var(--line);
-    background: rgba(17, 19, 22, 0.78);
-    backdrop-filter: blur(8px);
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-  .val {
-    font: 800 clamp(26px, 3vw, 40px) / 1.1 var(--display);
-    margin: 4px 0 2px;
-    font-variant-numeric: tabular-nums;
-    text-transform: uppercase;
-  }
 
   .hint {
     position: absolute;
@@ -529,15 +496,8 @@ const results = [
     .results {
       bottom: 24px;
     }
-    .tiles {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
     .hud {
       grid-template-columns: auto 1fr;
-    }
-    .tile {
-      padding: 10px 12px;
     }
     .results h2 {
       margin: 8px 0 14px;
