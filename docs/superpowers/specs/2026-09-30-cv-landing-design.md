@@ -45,3 +45,8 @@ Sporty, race-kit feel: near-black background, off-white text, one electric volt/
 
 ## Out of scope
 Blog, CMS, analytics, i18n, projects gallery.
+
+## Revision (2026-09-30): minimal landing + ball playground
+- Landing page no longer shows CV sections (like tom-nguyen.dev): header, full-screen hero, contact footer with Download CV (PDF). CV content lives only in `/cv` → `cv.pdf`.
+- Hero WebGL scene replaced: draggable physics playground of procedurally textured balls (football, basketball, volt "140.6" Ironman ball) — gravity, throw, ball–ball collisions, double-click to add (max 12). Touch grabs only when a ball is hit, otherwise page scrolls. Paused offscreen; static under reduced motion.
+- Sporty background: 8 numbered lane lines across the hero.

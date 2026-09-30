@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { cv } from '../data/cv';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
 ---
 
 <Base title={`${cv.name} — ${cv.title}`} description={cv.intro}>
@@ -15,82 +16,25 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     <a href="#contact" class="label">Contact</a>
   </header>
 
-  <main>
-    <section class="hero wrap">
-      <div id="hero-canvas" aria-hidden="true"><span class="label drag">Drag</span></div>
-      <div class="hero-copy">
-        <p class="label"><span class="accent">●</span> Swim · Bike · Run · Ship</p>
-        <h1>Built for the<br /><span class="accent">long</span> distance.</h1>
-        <p class="intro">{cv.intro}</p>
-      </div>
-    </section>
-
-    <section class="wrap" id="experience">
-      <div class="split"><b>01</b><h2>Experience</h2></div>
-      {
-        cv.experience.map((job) => (
-          <article class="job">
-            <div class="job-meta">
-              <h3>{job.company}</h3>
-              <p>{job.role}</p>
-              <p class="label">{job.period}</p>
-              <p class="label">{job.type}</p>
-            </div>
-            <ul>
-              {job.bullets.map((b) => (
-                <li>{b}</li>
-              ))}
-            </ul>
-          </article>
-        ))
-      }
-      <p class="note">{cv.projectsNote}</p>
-    </section>
-
-    <section class="wrap" id="skills">
-      <div class="split"><b>02</b><h2>Skills</h2></div>
-      <div class="skills">
-        {
-          cv.skills.map((s) => (
-            <div>
-              <p class="label">{s.group}</p>
-              <ul class="chips">
-                {s.items.map((i) => (
-                  <li>{i}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-
-    <section class="wrap" id="education">
-      <div class="split"><b>03</b><h2>Education</h2></div>
-      {
-        cv.education.map((e) => (
-          <div class="edu">
-            <div>
-              <h3>{e.school}</h3>
-              <p>{e.degree}</p>
-            </div>
-            <p class="label">{e.period}</p>
-          </div>
-        ))
-      }
-    </section>
-
-    <section class="wrap" id="off">
-      <div class="split"><b>04</b><h2>Off the clock</h2></div>
-      <p class="big">{cv.interests}</p>
-      <p class="label langs">{cv.languages.join(' · ')}</p>
-    </section>
+  <main class="hero">
+    <ol class="lanes" aria-hidden="true">
+      {lanes.map((n) => <li><span class="label">{n}</span></li>)}
+    </ol>
+    <div class="wrap hero-copy">
+      <p class="label"><span class="accent">●</span> Swim · Bike · Run · Ship</p>
+      <h1>Built for the<br /><span class="accent">long</span> distance.</h1>
+      <p class="intro">{cv.intro}</p>
+    </div>
+    <div id="playground" aria-hidden="true">
+      <span class="label hint">Grab · Throw<span class="more"> · Double-click for more</span></span>
+    </div>
   </main>
 
   <footer class="wrap" id="contact">
-    <div class="split"><b>FIN</b><h2>Get in <span class="accent">contact</span></h2></div>
-    <ul class="contact">
-      <li><a href={`mailto:${cv.email}`}>{cv.email}</a></li>
+    <p class="label"><b class="accent">FIN</b> — Finish line</p>
+    <h2>Get in <span class="accent">contact</span></h2>
+    <a class="email" href={`mailto:${cv.email}`}>{cv.email}</a>
+    <ul class="links">
       {
         cv.links.map((l) => (
           <li>
@@ -100,16 +44,16 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
           </li>
         ))
       }
-      <li><a href={`${base}cv.pdf`} download class="cta">Download CV ↓</a></li>
+      <li><a href={`${base}cv.pdf`} target="_blank" class="cta">Download CV (PDF) ↓</a></li>
     </ul>
     <p class="label copy">© {new Date().getFullYear()} {cv.name}</p>
   </footer>
 </Base>
 
 <script>
-  import { mountRings } from '../scripts/rings';
+  import { mountBalls } from '../scripts/balls';
 
-  mountRings(document.getElementById('hero-canvas')!);
+  mountBalls(document.getElementById('playground')!);
 
   const el = document.getElementById('clock')!;
   const fmt = new Intl.DateTimeFormat('en-GB', {
@@ -125,14 +69,15 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
 <style>
   .top {
+    position: absolute;
+    inset: 0 0 auto 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
     padding-top: 20px;
     padding-bottom: 20px;
-    position: relative;
-    z-index: 2;
+    z-index: 3;
   }
   .top div {
     display: flex;
@@ -152,182 +97,143 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   .hero {
     position: relative;
-    min-height: min(86vh, 800px);
+    height: 100svh;
+    min-height: 560px;
     display: flex;
     align-items: center;
-    padding-top: 0;
+    overflow: hidden;
   }
-  #hero-canvas {
+  .lanes {
     position: absolute;
-    inset: 0 -8% 10% 48%;
-    cursor: grab;
-    touch-action: pan-y;
+    inset: 0;
+    list-style: none;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
   }
-  #hero-canvas:active {
-    cursor: grabbing;
+  .lanes li {
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 16px;
   }
-  #hero-canvas :global(canvas) {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-  .drag {
-    position: absolute;
-    right: 12%;
-    bottom: 16px;
-    border: 1px solid var(--line);
-    padding: 4px 10px;
-    border-radius: 99px;
+  .lanes span {
+    opacity: 0.5;
   }
   .hero-copy {
     position: relative;
     z-index: 1;
-    pointer-events: none;
-    max-width: 760px;
+    width: 100%;
+    user-select: none;
   }
   .hero h1 {
-    font-size: clamp(64px, 10vw, 150px);
+    font-size: clamp(60px, 11vw, 168px);
     margin: 16px 0 24px;
   }
   .intro {
-    font-size: clamp(17px, 2vw, 20px);
+    font-size: clamp(16px, 1.8vw, 20px);
     color: var(--muted);
-    max-width: 560px;
+    max-width: 520px;
   }
 
-  .job {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 32px;
-    padding: 32px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .job h3 {
-    font-size: 36px;
-  }
-  .job-meta p:first-of-type {
-    margin: 8px 0 12px;
-    font-weight: 600;
-  }
-  .job ul {
-    list-style: none;
-    display: grid;
-    gap: 12px;
-  }
-  .job li {
-    padding-left: 24px;
-    position: relative;
-  }
-  .job li::before {
-    content: '';
+  #playground {
     position: absolute;
-    left: 0;
-    top: 0.72em;
-    width: 12px;
-    height: 2px;
-    background: var(--accent);
+    inset: 0;
+    z-index: 2;
+    touch-action: pan-y;
   }
-  .note {
-    margin-top: 32px;
-    color: var(--muted);
-    font-style: italic;
+  #playground :global(canvas) {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
-
-  .skills {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
+  #playground:global(.over-ball) {
+    cursor: grab;
   }
-  .chips {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+  #playground:global(.grabbing) {
+    cursor: grabbing;
   }
-  .chips li {
+  .hint {
+    position: absolute;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
     border: 1px solid var(--line);
-    border-radius: 99px;
+    background: var(--bg);
     padding: 6px 14px;
-    font-size: 14px;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .chips li:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .edu {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 16px;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .edu h3 {
-    font-size: 28px;
-  }
-  .edu p:not(.label) {
-    color: var(--muted);
-  }
-
-  .big {
-    font: 600 clamp(28px, 4vw, 44px) / 1.15 var(--display);
-    text-transform: uppercase;
-    max-width: 900px;
-  }
-  .langs {
-    margin-top: 24px;
+    border-radius: 99px;
+    white-space: nowrap;
+    pointer-events: none;
   }
 
   footer {
-    padding: 72px 16px 40px;
+    padding-top: 120px;
+    padding-bottom: 40px;
+    border-top: 1px solid var(--line);
   }
-  .contact {
+  footer h2 {
+    font-size: clamp(56px, 10vw, 150px);
+    margin: 16px 0 32px;
+  }
+  .email {
+    font: 600 clamp(22px, 4vw, 40px) var(--display);
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent);
+    word-break: break-all;
+  }
+  .links {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 16px 32px;
+    margin-top: 40px;
     font-size: 18px;
   }
-  .contact a {
+  .links a {
     text-decoration: none;
     border-bottom: 1px solid var(--line);
     transition: border-color 0.2s;
   }
-  .contact a:hover {
+  .links a:hover {
     border-color: var(--accent);
   }
-  .cta {
-    color: var(--accent);
+  .links .cta {
+    background: var(--accent);
+    color: var(--bg);
+    font: 800 20px var(--display);
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 99px;
+    border: 0;
+    transition: transform 0.2s;
+  }
+  .links .cta:hover {
+    transform: translateY(-2px);
   }
   .copy {
-    margin-top: 72px;
+    margin-top: 96px;
   }
 
   @media (max-width: 767px) {
-    .clock {
+    .clock,
+    .lanes span {
       display: none;
     }
     .hero {
-      flex-direction: column;
-      align-items: stretch;
-      min-height: 0;
+      align-items: flex-start;
+      padding-top: 120px;
     }
-    #hero-canvas {
-      position: relative;
-      inset: auto;
-      height: 80vw;
-      order: -1;
+  }
+  @media (hover: none) {
+    .more {
+      display: none;
     }
-    .job {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    .edu {
-      flex-direction: column;
-      gap: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hint {
+      display: none;
     }
   }
 </style>
