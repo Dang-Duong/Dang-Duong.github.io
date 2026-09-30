@@ -1,3 +1,33 @@
+@property --bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f3f1ec;
+}
+
+@property --fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #111111;
+}
+
+@property --muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6b6862;
+}
+
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d9d5cc;
+}
+
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2446ff;
+}
+
 :root {
   --bg: #f3f1ec;
   --fg: #111111;
@@ -9,6 +39,12 @@
   --body: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
   color-scheme: light;
+  transition:
+    --bg 0.7s ease,
+    --fg 0.7s ease,
+    --muted 0.7s ease,
+    --line 0.7s ease,
+    --accent 0.7s ease;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,20 +83,6 @@ html {
 body {
   background: var(--bg);
   overflow-x: hidden;
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-.theme-fade,
-.theme-fade * {
-  transition:
-    background-color 0.45s ease,
-    color 0.45s ease,
-    border-color 0.45s ease !important;
 }
 
 ::selection {
