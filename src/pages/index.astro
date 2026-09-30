@@ -28,7 +28,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   <header class="wrap top">
     <span class="label"><i class="dot"></i>Live · Bib #0973</span>
     <span class="label clock" id="clock">Prague --:--:--</span>
-    <a href="#contact" class="label">Contact</a>
+    <nav class="actions">
+      <button class="label theme" id="theme" type="button" aria-label="Toggle dark mode">Dark</button>
+      <a href="#contact" class="label">Contact</a>
+    </nav>
   </header>
 
   <main class="hero">
@@ -41,7 +44,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
         <em>Training for my first Ironman.</em>
       </p>
     </div>
-    <span class="label hint">Hover to scatter · click to switch</span>
+    <span class="label hint">Hover to scatter · click to morph</span>
   </main>
 
   <footer class="wrap" id="contact">
@@ -69,6 +72,21 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   import { mountParticles } from '../scripts/particles';
 
   mountParticles(document.getElementById('particles')!);
+
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('theme')!;
+  const isDark = () =>
+    root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => (themeBtn.textContent = isDark() ? 'Light' : 'Dark');
+  label();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', label);
+  themeBtn.addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
+    try {
+      localStorage.setItem('theme', root.dataset.theme);
+    } catch {}
+    label();
+  });
 
   const clock = document.getElementById('clock')!;
   const fmt = new Intl.DateTimeFormat('en-GB', {
@@ -118,6 +136,22 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   .clock {
     font-variant-numeric: tabular-nums;
+  }
+  .actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .theme {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    padding: 4px 10px;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .theme:hover {
+    border-color: var(--accent);
   }
 
   .hero {

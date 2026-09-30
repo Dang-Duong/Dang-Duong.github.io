@@ -8,6 +8,27 @@
   --serif: 'Instrument Serif', serif;
   --body: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1012;
+    --fg: #f1efe9;
+    --muted: #9a968e;
+    --line: #2b2b30;
+    --accent: #6b86ff;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1012;
+  --fg: #f1efe9;
+  --muted: #9a968e;
+  --line: #2b2b30;
+  --accent: #6b86ff;
+  color-scheme: dark;
 }
 
 * {

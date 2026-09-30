@@ -1,55 +1,40 @@
 import * as THREE from 'three';
+import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 
-const GLYPHS = [
-  { glyph: '🏊', fallback: 'SWIM' },
-  { glyph: '🚴', fallback: 'BIKE' },
-  { glyph: '🏃', fallback: 'RUN' },
-  { glyph: '🏅', fallback: '2026' },
-];
 const HOLD_MS = 4200;
 
-const INK = '#141414';
-const ACCENT = '#2446ff';
-const SIZE = 3.4;
-
-function sampleGlyph(glyph: string, fallback: string, n: number) {
-  const S = 220;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = S;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-  const collect = () => {
-    const data = ctx.getImageData(0, 0, S, S).data;
-    const pts: number[] = [];
-    for (let i = 0; i < S * S; i++) {
-      if (data[i * 4 + 3] > 120) {
-        const lum = (data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2]) / 765;
-        pts.push(i % S, Math.floor(i / S), lum);
-      }
-    }
-    return pts;
-  };
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '170px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-  ctx.fillText(glyph, S / 2, S / 2 + 8);
-  let pts = collect();
-  let mirror = -1;
-  if (pts.length < 1500) {
-    ctx.clearRect(0, 0, S, S);
-    ctx.fillStyle = '#fff';
-    ctx.font = '800 96px "Barlow Condensed", sans-serif';
-    ctx.fillText(fallback, S / 2, S / 2);
-    pts = collect();
-    mirror = 1;
+function sphere(n: number) {
+  const out = new Float32Array(n * 3);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (i / (n - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const k = 1.45 + (Math.random() - 0.5) * 0.06;
+    out.set([Math.cos(golden * i) * r * k, y * k, Math.sin(golden * i) * r * k], i * 3);
   }
-  const count = pts.length / 3;
+  return out;
+}
+
+function wave(n: number) {
   const out = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
-    const k = Math.floor(Math.random() * count) * 3;
-    const x = (pts[k] + Math.random() - S / 2) / S;
-    const y = (pts[k + 1] + Math.random() - S / 2) / S;
-    out.set([mirror * x * SIZE, -y * SIZE, (pts[k + 2] - 0.5) * 0.7 + (Math.random() - 0.5) * 0.12], i * 3);
+    const x = (Math.random() - 0.5) * 4;
+    const z = (Math.random() - 0.5) * 2.6;
+    const y = 0.35 * Math.sin(x * 1.8 + z * 1.2) + 0.2 * Math.cos(z * 2.4);
+    out.set([x, y, z], i * 3);
   }
+  return out;
+}
+
+function surface(geometry: THREE.BufferGeometry, n: number) {
+  const sampler = new MeshSurfaceSampler(new THREE.Mesh(geometry)).build();
+  const out = new Float32Array(n * 3);
+  const p = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    sampler.sample(p);
+    out.set([p.x, p.y, p.z], i * 3);
+  }
+  geometry.dispose();
   return out;
 }
 
@@ -87,8 +72,8 @@ const vertexShader = /* glsl */ `
     vec3 pos = mix(shape(i), shape(i + 1.0), t);
 
     float swirl = sin(t * 3.14159);
-    pos += vec3(sin(seed * 41.0 + uTime), cos(seed * 23.0 + uTime * 1.3), sin(seed * 17.0 + uTime * 0.7)) * swirl * 0.9;
-    pos += vec3(sin(uTime * 1.4 + seed * 30.0), cos(uTime * 1.1 + seed * 50.0), 0.0) * 0.025 * uMotion;
+    pos += vec3(sin(seed * 41.0 + uTime), cos(seed * 23.0 + uTime * 1.3), sin(seed * 17.0 + uTime * 0.7)) * swirl * 0.6;
+    pos += vec3(sin(uTime * 1.4 + seed * 30.0), cos(uTime * 1.1 + seed * 50.0), 0.0) * 0.02 * uMotion;
 
     vec4 world = modelMatrix * vec4(pos, 1.0);
     vec2 d = world.xy - uMouse.xy;
@@ -99,8 +84,8 @@ const vertexShader = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * (0.5 + seed) / -mv.z;
 
-    vColor = abs(seed - 0.5) < 0.025 ? uAccent : uInk;
-    vAlpha = 0.55 + 0.45 * seed;
+    vColor = abs(seed - 0.5) < 0.04 ? uAccent : uInk;
+    vAlpha = (0.45 + 0.45 * seed) * smoothstep(-9.0, -4.0, mv.z);
   }
 `;
 
@@ -129,10 +114,16 @@ export function mountParticles(host: HTMLElement) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
 
-  const n = matchMedia('(max-width: 900px)').matches ? 14000 : 32000;
-  const geo = new THREE.BufferGeometry();
-  const shapes = GLYPHS.map((g) => sampleGlyph(g.glyph, g.fallback, n));
+  const n = matchMedia('(max-width: 900px)').matches ? 14000 : 30000;
+  const shapes = [
+    sphere(n),
+    surface(new THREE.TorusKnotGeometry(0.95, 0.3, 220, 32), n),
+    wave(n),
+    surface(new THREE.TorusGeometry(1.3, 0.12, 24, 160), n),
+  ];
+  const count = shapes.length;
   shapes.push(shapes[0]);
+  const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(shapes[0], 3));
   shapes.forEach((s, i) => geo.setAttribute(`s${i}`, new THREE.BufferAttribute(s, 3)));
   geo.setAttribute('seed', new THREE.BufferAttribute(Float32Array.from({ length: n }, Math.random), 1));
@@ -141,24 +132,28 @@ export function mountParticles(host: HTMLElement) {
   const uniforms = {
     uMorph: { value: 0 },
     uTime: { value: 0 },
-    uSize: { value: 22 * dpr },
+    uSize: { value: 20 * dpr },
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
-    uInk: { value: new THREE.Color(INK) },
-    uAccent: { value: new THREE.Color(ACCENT) },
+    uInk: { value: new THREE.Color() },
+    uAccent: { value: new THREE.Color() },
   };
+  const readTheme = () => {
+    const css = getComputedStyle(document.documentElement);
+    uniforms.uInk.value.set(css.getPropertyValue('--fg').trim());
+    uniforms.uAccent.value.set(css.getPropertyValue('--accent').trim());
+  };
+  readTheme();
+  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+
   const points = new THREE.Points(
     geo,
-    new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader,
-      transparent: true,
-      depthWrite: false,
-    }),
+    new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader, transparent: true, depthWrite: false }),
   );
   points.frustumCulled = false;
+  points.rotation.x = 0.35;
   scene.add(points);
 
   const resize = () => {
@@ -166,7 +161,7 @@ export function mountParticles(host: HTMLElement) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.z = 5.2 * Math.max(1, 0.9 / camera.aspect);
+    camera.position.z = 6 * Math.max(1, 0.9 / camera.aspect);
     camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(host);
@@ -199,6 +194,7 @@ export function mountParticles(host: HTMLElement) {
   };
   host.addEventListener('click', advance);
 
+  let spin = 0;
   let last = performance.now();
   const frame = (now: number) => {
     if (!visible) {
@@ -211,11 +207,14 @@ export function mountParticles(host: HTMLElement) {
     if (!reduced && now > nextAt) advance();
     const m = uniforms.uMorph;
     m.value += (target - m.value) * Math.min(1, dt * 2.2);
-    if (m.value > GLYPHS.length - 0.001) {
-      m.value -= GLYPHS.length;
-      target -= GLYPHS.length;
+    if (m.value > count - 0.001) {
+      m.value -= count;
+      target -= count;
     }
-    if (!reduced) uniforms.uTime.value = now / 1000;
+    if (!reduced) {
+      uniforms.uTime.value = now / 1000;
+      spin += dt * 0.18;
+    }
 
     pointerSpeed *= 1 - Math.min(1, dt * 3);
     ray.setFromCamera(pointer, camera);
@@ -223,9 +222,8 @@ export function mountParticles(host: HTMLElement) {
     const force = pointerIn && !reduced ? 0.35 + pointerSpeed * 0.9 : 0;
     uniforms.uForce.value += (force - uniforms.uForce.value) * Math.min(1, dt * 6);
 
-    const sway = reduced ? 0 : Math.sin(now / 3200) * 0.35;
-    points.rotation.y += (sway + (pointerIn ? pointer.x * 0.25 : 0) - points.rotation.y) * Math.min(1, dt * 3);
-    points.rotation.x += ((pointerIn ? -pointer.y * 0.12 : 0) - points.rotation.x) * Math.min(1, dt * 3);
+    points.rotation.y = spin + (pointerIn ? pointer.x * 0.3 : 0);
+    points.rotation.x += (0.35 - (pointerIn ? pointer.y * 0.2 : 0) - points.rotation.x) * Math.min(1, dt * 3);
 
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
