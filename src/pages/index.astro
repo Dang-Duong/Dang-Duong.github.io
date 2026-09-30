@@ -241,7 +241,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   #particles {
     position: fixed;
-    inset: 0;
+    inset: 0 0 auto 0;
+    height: 100vh;
+    height: 100lvh;
     z-index: 5;
     pointer-events: none;
   }
@@ -308,7 +310,8 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   footer {
     position: relative;
     z-index: 2;
-    min-height: 100svh;
+    min-height: 100vh;
+    min-height: 100lvh;
     display: flex;
     align-items: flex-end;
     padding-top: 140px;

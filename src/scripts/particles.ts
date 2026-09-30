@@ -222,7 +222,7 @@ export async function mountParticles(
     'pointermove',
     (e) => {
       const x = (e.clientX / innerWidth) * 2 - 1;
-      const y = -(e.clientY / innerHeight) * 2 + 1;
+      const y = -(e.clientY / host.clientHeight) * 2 + 1;
       pointerSpeed = Math.min(1, pointerSpeed + Math.hypot(x - pointer.x, y - pointer.y) * 4);
       pointer.set(x, y);
       pointerIn = true;
@@ -259,16 +259,17 @@ export async function mountParticles(
       spin += dt * 0.18;
     }
 
+    const H = host.clientHeight;
     const panelTop = panel.getBoundingClientRect().top;
     const raw = clamp01(1 - panelTop / innerHeight);
     onProgress(raw);
     if (!themeReady) readTheme();
-    uniforms.uEdge.value = Math.max(0, host.clientHeight - panelTop) * dpr;
+    uniforms.uEdge.value = Math.max(0, H - panelTop) * dpr;
     uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));
     uniforms.uPaper.value.lerp(paper, Math.min(1, dt * 5));
     const p = ease(raw);
     const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
-    const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / innerHeight) * 2 * view.halfH;
+    const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / H) * 2 * view.halfH;
     from.set(0, view.halfH * (view.wide ? 0.28 : 0.32), 0);
     to.set(view.halfW * (view.wide ? 0.5 : 0.3), anchorY, 0);
     points.position.lerpVectors(from, to, p);
