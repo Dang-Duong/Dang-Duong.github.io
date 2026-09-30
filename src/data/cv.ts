@@ -55,7 +55,7 @@ export const cv = {
     { school: 'Gymnázium Ostrov', degree: '8-year programme, Maturita', period: '2015 – 2023' },
   ],
   projectsNote: "Curious what I've built? Let me know and I'll happily walk you through it.",
-  interests: 'Really into sport — recently started training for my first Ironman. Football & basketball on the side.',
+  interests: 'Really into sport — recently started training for my first Ironman.',
   languages: ['Czech (native)', 'English (fluent)', 'Vietnamese (intermediate)'],
 };
 

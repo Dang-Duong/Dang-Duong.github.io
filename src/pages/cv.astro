@@ -1,0 +1,182 @@
+---
+import { cv } from '../data/cv';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{cv.name} — CV</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>{cv.name}</h1>
+      <p class="sub">{cv.title} · {cv.location} · BSc Software Development, graduating 2026</p>
+      <p class="contact">
+        {cv.phone} · <a href={`mailto:${cv.email}`}>{cv.email}</a> ·
+        <a href="https://github.com/Dang-Duong">github.com/Dang-Duong</a> ·
+        <a href="https://www.linkedin.com/in/dang-duong-nguyen/">linkedin.com/in/dang-duong-nguyen</a>
+      </p>
+    </header>
+
+    <p class="intro">{cv.intro}</p>
+
+    <h2>Experience</h2>
+    {
+      cv.experience.map((job) => (
+        <section class="job">
+          <div class="row">
+            <strong>{job.company}</strong>
+            <span class="mono">{job.period}</span>
+          </div>
+          <div class="row role">
+            <span>{job.role}</span>
+            <span class="mono">{job.type}</span>
+          </div>
+          <ul>
+            {job.bullets.map((b) => (
+              <li>{b}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <p class="note">{cv.projectsNote}</p>
+
+    <h2>Skills</h2>
+    <dl class="skills">
+      {
+        cv.skills.map((s) => (
+          <>
+            <dt>{s.group}</dt>
+            <dd>{s.items.join(' · ')}</dd>
+          </>
+        ))
+      }
+    </dl>
+
+    <h2>Education</h2>
+    {
+      cv.education.map((e) => (
+        <div class="row edu">
+          <span>
+            <strong>{e.school}</strong> — {e.degree}
+          </span>
+          <span class="mono">{e.period}</span>
+        </div>
+      ))
+    }
+
+    <h2>Interests & Languages</h2>
+    <dl class="skills">
+      <dt>Interests</dt>
+      <dd>{cv.interests}</dd>
+      <dt>Languages</dt>
+      <dd>{cv.languages.join(' · ')}</dd>
+    </dl>
+  </body>
+</html>
+
+<style is:global>
+  @page {
+    size: A4;
+    margin: 10mm 14mm;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font: 9.1pt/1.38 'Inter', sans-serif;
+    color: #111;
+    background: #fff;
+    max-width: 180mm;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  @media print {
+    body {
+      padding: 0;
+    }
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  h1 {
+    font: 800 30pt/1 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    border-bottom: 4px solid #d4ff3a;
+    display: inline-block;
+    padding-bottom: 2px;
+  }
+  .sub {
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .contact {
+    color: #555;
+    font-size: 8.8pt;
+  }
+  .intro {
+    margin-top: 6px;
+  }
+  h2 {
+    font: 700 13pt 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #ddd;
+    margin: 11px 0 5px;
+    padding-bottom: 2px;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .mono {
+    font: 500 8pt 'JetBrains Mono', monospace;
+    color: #555;
+    white-space: nowrap;
+  }
+  .job {
+    margin-bottom: 8px;
+    break-inside: avoid;
+  }
+  .job strong {
+    font-size: 10.5pt;
+  }
+  .role {
+    font-style: italic;
+    color: #333;
+  }
+  ul {
+    margin: 3px 0 0 14px;
+  }
+  li {
+    margin-bottom: 1px;
+  }
+  .skills {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 2px 12px;
+  }
+  dt {
+    font-weight: 600;
+  }
+  .note {
+    font-style: italic;
+    color: #555;
+  }
+  .edu {
+    margin-bottom: 2px;
+  }
+</style>
