@@ -1,27 +1,63 @@
-import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { extname, join } from 'node:path';
-import { chromium } from 'playwright';
+import { execFileSync } from 'node:child_process';
+import { copyFileSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { cv } from '../src/data/cv.ts';
 
-const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript' };
-const server = createServer(async (req, res) => {
-  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/cv/, '');
-  const file = join('dist', path.endsWith('/') ? `${path}index.html` : path);
-  try {
-    const body = await readFile(file);
-    res.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
-    res.end(body);
-  } catch {
-    res.writeHead(404).end();
-  }
-}).listen(0);
+const tex = (s) =>
+  s.replace(/[\\&%$#_{}~^]/g, (c) => ({ '\\': '\\textbackslash{}', '~': '\\textasciitilde{}', '^': '\\textasciicircum{}' })[c] ?? `\\${c}`);
 
-try {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto(`http://localhost:${server.address().port}/cv/cv/`, { waitUntil: 'networkidle' });
-  await page.pdf({ path: 'public/cv.pdf', format: 'A4', printBackground: true, preferCSSPageSize: true });
-  await browser.close();
-} finally {
-  server.close();
-}
+const entry = (title, date, lines, bullets = []) =>
+  [
+    `\\textbf{${tex(title)}} \\hfill ${tex(date)}`,
+    ...lines.map((l) => `\\\\ ${tex(l)}`),
+    bullets.length ? `\\begin{itemize}\n${bullets.map((b) => `  \\item ${tex(b)}`).join('\n')}\n\\end{itemize}` : '',
+  ].join('\n');
+
+const doc = String.raw`\documentclass{resume}
+\usepackage{fontspec}
+\usepackage[left=0.75in,top=0.5in,right=0.75in,bottom=0.5in]{geometry}
+\def\sectionskip{\medskip}
+\usepackage{enumitem}
+\setlist[itemize]{label=-, leftmargin=0.9em, labelsep=0.4em, nosep, before=\vspace{-0.6\parskip}}
+\usepackage{hyperref}
+
+\name{${tex(cv.name)}}
+
+\begin{document}
+\printaddress{${tex(cv.phone)} \\ ${tex(cv.email)} \\ \href{https://github.com/Dang-Duong}{github.com/Dang-Duong} \\ \href{https://www.linkedin.com/in/dang-duong-nguyen/}{linkedin.com/in/dang-duong-nguyen}}
+
+\begin{rSection}{About me}
+${tex(cv.about)}
+\end{rSection}
+
+\begin{rSection}{Experience}
+${cv.experience.map((j) => entry(j.company, j.period, [`${j.role} · ${j.type}`], j.bullets)).join('\n\n')}
+\end{rSection}
+
+\begin{rSection}{Education}
+${cv.education.map((e) => entry(e.school, e.period, [e.degree])).join('\n\n')}
+\end{rSection}
+
+\begin{rSection}{Skills}
+\begin{tabular}{@{} >{\bfseries}l @{\hspace{4ex}} p{0.68\linewidth} @{}}
+${cv.skills.map((s) => `${tex(s.group)}: & ${tex(s.items.join(', '))} \\\\`).join('\n')}
+\end{tabular}
+\end{rSection}
+
+\begin{rSection}{Projects}
+${tex(cv.projectsNote)}
+\end{rSection}
+
+\begin{rSection}{Languages}
+${cv.languages.map(tex).join(' $\\bullet$ ')}
+\end{rSection}
+
+\end{document}
+`;
+
+const dir = mkdtempSync(join(tmpdir(), 'cv-'));
+copyFileSync('scripts/latex/resume.cls', join(dir, 'resume.cls'));
+writeFileSync(join(dir, 'cv.tex'), doc);
+execFileSync('tectonic', ['--chatter', 'minimal', join(dir, 'cv.tex')], { stdio: 'inherit' });
+copyFileSync(join(dir, 'cv.pdf'), 'public/cv.pdf');

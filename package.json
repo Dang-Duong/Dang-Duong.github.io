@@ -7,15 +7,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
-    "cv:pdf": "astro build && node scripts/cv-pdf.mjs"
+    "cv:pdf": "node --experimental-strip-types scripts/cv-pdf.mjs"
   },
   "dependencies": {
     "astro": "^7.3.5",
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "@types/three": "^0.186.0",
-    "playwright": "^1.63.0"
+    "@types/three": "^0.186.0"
   },
   "packageManager": "pnpm@11.28.2",
   "engines": {

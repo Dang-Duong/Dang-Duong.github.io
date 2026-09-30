@@ -13,3 +13,10 @@ test('two experience entries with bullets', () => {
   for (const e of cv.experience) assert.ok(e.bullets.length >= 4, e.company);
 });
 test('ironman in interests', () => assert.match(cv.interests, /ironman/i));
+test('experience bullets stay short and metric-free', () => {
+  for (const e of cv.experience)
+    for (const b of e.bullets) {
+      assert.doesNotMatch(b, /\d{2,}/, b);
+      assert.ok(b.length <= 110, b);
+    }
+});
