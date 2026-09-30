@@ -2,21 +2,16 @@ import * as THREE from 'three';
 
 const HOLD_MS = 4200;
 
-function text(label: string, n: number, width = 3.8) {
-  const W = 640;
-  const H = 320;
+type Draw = (ctx: CanvasRenderingContext2D) => void;
+
+function sample(draw: Draw, n: number, width: number, W = 400, H = 400) {
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  let size = 260;
-  ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
-  size *= Math.min(1, (W * 0.9) / ctx.measureText(label).width);
-  ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(label, W / 2, H / 2 + size * 0.04);
+  ctx.fillStyle = ctx.strokeStyle = '#fff';
+  ctx.lineCap = ctx.lineJoin = 'round';
+  draw(ctx);
   const data = ctx.getImageData(0, 0, W, H).data;
   const pts: number[] = [];
   for (let i = 0; i < W * H; i++) if (data[i * 4 + 3] > 128) pts.push(i % W, Math.floor(i / W));
@@ -32,47 +27,155 @@ function text(label: string, n: number, width = 3.8) {
   return out;
 }
 
-function wheel(n: number) {
-  const out = new Float32Array(n * 3);
-  const R = 1.45;
-  const spokes = 18;
-  for (let i = 0; i < n; i++) {
-    const r = Math.random();
-    const a = Math.random() * Math.PI * 2;
-    let x: number;
-    let y: number;
-    let z = (Math.random() - 0.5) * 0.04;
-    if (r < 0.55) {
-      const t = Math.random() * Math.PI * 2;
-      const rr = R + Math.cos(t) * 0.07;
-      x = Math.cos(a) * rr;
-      y = Math.sin(a) * rr;
-      z = Math.sin(t) * 0.07;
-    } else if (r < 0.92) {
-      const s = (Math.floor(Math.random() * spokes) / spokes) * Math.PI * 2;
-      const d = 0.12 + Math.random() * (R - 0.15);
-      x = Math.cos(s) * d;
-      y = Math.sin(s) * d;
-      z = (1 - d / R) * 0.18 * (Math.random() < 0.5 ? 1 : -1);
-    } else {
-      const d = Math.sqrt(Math.random()) * 0.14;
-      x = Math.cos(a) * d;
-      y = Math.sin(a) * d;
-      z = (Math.random() - 0.5) * 0.3;
-    }
-    out.set([x, y, z], i * 3);
+const text =
+  (label: string): Draw =>
+  (ctx) => {
+    const W = ctx.canvas.width;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let size = 260;
+    ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
+    size *= Math.min(1, (W * 0.9) / ctx.measureText(label).width);
+    ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
+    ctx.fillText(label, W / 2, ctx.canvas.height / 2 + size * 0.04);
+  };
+
+const line = (ctx: CanvasRenderingContext2D, width: number, ...pts: number[]) => {
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  ctx.moveTo(pts[0], pts[1]);
+  for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]);
+  ctx.stroke();
+};
+
+const dot = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number) => {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+};
+
+const swimmer: Draw = (ctx) => {
+  dot(ctx, 118, 178, 24);
+  line(ctx, 24, 150, 190, 290, 206);
+  line(ctx, 20, 160, 190, 60, 200);
+  line(ctx, 20, 196, 196, 222, 138, 262, 128);
+  line(ctx, 20, 290, 206, 350, 192);
+  line(ctx, 20, 290, 206, 350, 226);
+  ctx.lineWidth = 12;
+  for (const y of [262, 300]) {
+    ctx.beginPath();
+    for (let x = 30; x <= 370; x += 4) ctx.lineTo(x, y + Math.sin(x / 22) * 9);
+    ctx.stroke();
   }
-  return out;
-}
+};
+
+const cyclist: Draw = (ctx) => {
+  ctx.lineWidth = 14;
+  for (const x of [100, 300]) {
+    ctx.beginPath();
+    ctx.arc(x, 285, 64, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  line(ctx, 12, 100, 285, 172, 205, 205, 285, 100, 285);
+  line(ctx, 12, 172, 205, 268, 200, 300, 285);
+  line(ctx, 12, 205, 285, 268, 200);
+  line(ctx, 12, 262, 200, 272, 170, 292, 172);
+  dot(ctx, 262, 108, 24);
+  line(ctx, 22, 176, 188, 246, 134);
+  line(ctx, 18, 240, 142, 280, 176);
+  line(ctx, 20, 176, 190, 238, 222, 208, 282);
+  line(ctx, 18, 176, 190, 212, 250, 184, 292);
+};
+
+const shoe: Draw = (ctx) => {
+  ctx.beginPath();
+  ctx.moveTo(40, 300);
+  ctx.lineTo(362, 300);
+  ctx.quadraticCurveTo(392, 300, 382, 270);
+  ctx.quadraticCurveTo(362, 236, 300, 226);
+  ctx.lineTo(210, 198);
+  ctx.quadraticCurveTo(182, 186, 166, 204);
+  ctx.quadraticCurveTo(142, 222, 120, 196);
+  ctx.lineTo(96, 166);
+  ctx.quadraticCurveTo(58, 160, 54, 200);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalCompositeOperation = 'destination-out';
+  line(ctx, 7, 46, 280, 376, 280);
+  for (const x of [220, 250, 280]) line(ctx, 7, x, 210 + (x - 220) * 0.28, x + 14, 234 + (x - 220) * 0.28);
+  ctx.globalCompositeOperation = 'source-over';
+};
+
+const climber: Draw = (ctx) => {
+  for (const [x, y] of [
+    [140, 70],
+    [268, 96],
+    [110, 190],
+    [300, 222],
+    [158, 330],
+    [258, 340],
+  ])
+    dot(ctx, x, y, 12);
+  dot(ctx, 204, 124, 24);
+  line(ctx, 24, 204, 152, 196, 240);
+  line(ctx, 18, 202, 162, 160, 118, 144, 80);
+  line(ctx, 18, 206, 162, 248, 136, 264, 104);
+  line(ctx, 20, 196, 238, 156, 276, 162, 324);
+  line(ctx, 20, 196, 238, 244, 282, 254, 334);
+};
+
+const ball: Draw = (ctx) => {
+  dot(ctx, 200, 200, 150);
+  ctx.globalCompositeOperation = 'destination-out';
+  line(ctx, 10, 200, 50, 200, 350);
+  line(ctx, 10, 50, 200, 350, 200);
+  for (const x of [-45, 445]) {
+    ctx.beginPath();
+    ctx.arc(x, 200, 190, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+};
+
+const cap: Draw = (ctx) => {
+  ctx.beginPath();
+  ctx.moveTo(200, 88);
+  ctx.lineTo(372, 158);
+  ctx.lineTo(200, 228);
+  ctx.lineTo(28, 158);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(108, 196);
+  ctx.lineTo(108, 262);
+  ctx.quadraticCurveTo(200, 312, 292, 262);
+  ctx.lineTo(292, 196);
+  ctx.lineTo(200, 234);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalCompositeOperation = 'destination-out';
+  line(ctx, 8, 108, 196, 200, 234, 292, 196);
+  ctx.globalCompositeOperation = 'source-over';
+  line(ctx, 8, 200, 158, 330, 176, 334, 262);
+  ctx.fillRect(322, 256, 24, 40);
+};
+
+const SHAPES: [Draw, number, number?, number?][] = [
+  [text('NDD'), 4.2, 640, 320],
+  [swimmer, 3.8],
+  [cyclist, 3.8],
+  [shoe, 3.9],
+  [climber, 3.6],
+  [ball, 3.2],
+  [cap, 3.8],
+  [text('</>'), 3.9, 640, 320],
+];
 
 const vertexShader = /* glsl */ `
-  attribute vec3 s0;
-  attribute vec3 s1;
-  attribute vec3 s2;
-  attribute vec3 s3;
-  attribute vec3 s4;
+  attribute vec3 aFrom;
+  attribute vec3 aTo;
   attribute float seed;
-  uniform float uMorph;
+  uniform float uT;
   uniform float uTime;
   uniform float uSize;
   uniform float uMotion;
@@ -80,20 +183,9 @@ const vertexShader = /* glsl */ `
   uniform float uForce;
   varying float vAlpha;
 
-  vec3 shape(float i) {
-    if (i < 0.5) return s0;
-    if (i < 1.5) return s1;
-    if (i < 2.5) return s2;
-    if (i < 3.5) return s3;
-    return s4;
-  }
-
   void main() {
-    float m = clamp(uMorph, 0.0, 4.0);
-    float i = min(floor(m), 3.0);
-    float f = m - i;
-    float t = smoothstep(0.0, 1.0, clamp((f - seed * 0.4) / 0.6, 0.0, 1.0));
-    vec3 pos = mix(shape(i), shape(i + 1.0), t);
+    float t = smoothstep(0.0, 1.0, clamp((uT - seed * 0.4) / 0.6, 0.0, 1.0));
+    vec3 pos = mix(aFrom, aTo, t);
 
     float swirl = sin(t * 3.14159);
     pos += vec3(sin(seed * 41.0 + uTime), cos(seed * 23.0 + uTime * 1.3), sin(seed * 17.0 + uTime * 0.7)) * swirl * 0.6;
@@ -152,17 +244,18 @@ export async function mountParticles(
   camera.position.z = 6;
 
   const n = mobile ? 9000 : 30000;
-  const shapes = [text('NDD', n, 4.2), wheel(n), text('</>', n, 3.9), text('140.6', n, 4.6)];
-  const count = shapes.length;
-  shapes.push(shapes[0]);
+  const shapes = SHAPES.map(([draw, width, W, H]) => sample(draw, n, width, W, H));
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(shapes[0], 3));
-  shapes.forEach((s, i) => geo.setAttribute(`s${i}`, new THREE.BufferAttribute(s, 3)));
+  const aFrom = new THREE.BufferAttribute(shapes[0].slice(), 3);
+  const aTo = new THREE.BufferAttribute(shapes[0].slice(), 3);
+  geo.setAttribute('position', aTo);
+  geo.setAttribute('aFrom', aFrom);
+  geo.setAttribute('aTo', aTo);
   geo.setAttribute('seed', new THREE.BufferAttribute(Float32Array.from({ length: n }, Math.random), 1));
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const uniforms = {
-    uMorph: { value: 0 },
+    uT: { value: 1 },
     uTime: { value: 0 },
     uSize: { value: 20 * dpr },
     uMotion: { value: reduced ? 0 : 1 },
@@ -231,11 +324,16 @@ export async function mountParticles(
   );
   document.documentElement.addEventListener('pointerleave', () => (pointerIn = false));
 
-  let target = 0;
+  let index = 0;
   let nextAt = performance.now() + HOLD_MS;
   const advance = () => {
-    target += 1;
     nextAt = performance.now() + HOLD_MS;
+    if (uniforms.uT.value < 1) return;
+    index = (index + 1) % shapes.length;
+    (aFrom.array as Float32Array).set(aTo.array as Float32Array);
+    (aTo.array as Float32Array).set(shapes[index]);
+    aFrom.needsUpdate = aTo.needsUpdate = true;
+    uniforms.uT.value = 0;
   };
   hero.addEventListener('click', advance);
 
@@ -248,12 +346,7 @@ export async function mountParticles(
     last = now;
 
     if (!reduced && now > nextAt) advance();
-    const m = uniforms.uMorph;
-    m.value += (target - m.value) * Math.min(1, dt * 2.2);
-    if (m.value > count - 0.001) {
-      m.value -= count;
-      target -= count;
-    }
+    uniforms.uT.value = Math.min(1, uniforms.uT.value + dt / 1.4);
     if (!reduced) {
       uniforms.uTime.value = now / 1000;
       spin += dt * 0.18;

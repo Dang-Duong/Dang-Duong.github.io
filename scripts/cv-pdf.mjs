@@ -18,7 +18,7 @@ const doc = String.raw`\documentclass{resume}
 \usepackage{fontspec}
 \usepackage[left=0.75in,top=0.6in,right=0.75in,bottom=0.6in]{geometry}
 \usepackage{enumitem}
-\setlist[itemize]{label=-, leftmargin=0.9em, labelsep=0.4em, nosep, before=\vspace{-0.6\parskip}}
+\setlist[itemize]{label=\textbullet, leftmargin=0.9em, labelsep=0.4em, nosep, before=\vspace{-0.6\parskip}}
 \usepackage{hyperref}
 
 \name{${tex(cv.name)}}

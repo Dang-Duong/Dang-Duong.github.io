@@ -14,13 +14,13 @@ export const cv = {
     {
       company: 'Yolk Studio',
       role: 'Software Engineer',
-      type: 'Full-time',
-      period: 'Aug 2025 – Present',
+      type: 'Full time',
+      period: 'Aug 2025 to Present',
       bullets: [
         'Built AI document extraction with Gemini for a UK mortgage platform',
         'Built secure MCP API access so AI agents can work with client platforms',
-        'Rebuilt a mortgage-origination platform with React, TanStack Query, Express and .NET',
-        'Shipped fintech apps in React Native — wallet deposits and AML verification',
+        'Rebuilt a mortgage origination platform with React, TanStack Query, Express and .NET',
+        'Shipped fintech apps in React Native with wallet deposits and AML verification',
         'Automated internal workflows with n8n, a Slack bot and CI release pipelines',
         'Built a news platform with Expo, Next.js and NestJS, including Stripe payments',
         'Delivered marketing sites with Next.js and GSAP animations',
@@ -33,11 +33,11 @@ export const cv = {
     { group: 'Backend', items: ['Node', 'NestJS', '.NET', 'PostgreSQL', 'Stripe', 'Playwright'] },
   ],
   education: [
-    { school: 'Unicorn University, Prague', degree: "Bachelor's Degree in Software Development — graduating 2026", period: 'Sep 2024 – Present' },
-    { school: 'Gymnázium Ostrov, Ostrov nad Ohří', degree: '8-year Program, Concluded with Maturita Exam', period: 'Sep 2015 – Jun 2023' },
+    { school: 'Unicorn University, Prague', degree: "Bachelor's Degree in Software Development, graduating 2026", period: 'Sep 2024 to Present' },
+    { school: 'Gymnázium Ostrov, Ostrov nad Ohří', degree: 'Eight year program, concluded with Maturita exam', period: 'Sep 2015 to Jun 2023' },
   ],
-  projectsNote: 'Most of my client work is under NDA — happy to demo it live on a call.',
-  interests: 'Really into sport — recently started training for my first Ironman.',
+  projectsNote: 'Code samples and live demos of my work are available on request.',
+  interests: 'Really into sport, recently started training for my first Ironman.',
   languages: ['Czech (native)', 'English (fluent)', 'Vietnamese (intermediate)'],
 };
 

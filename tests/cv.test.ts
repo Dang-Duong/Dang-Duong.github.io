@@ -22,3 +22,18 @@ test('experience bullets stay short and metric-free', () => {
       assert.ok(b.length <= 110, b);
     }
 });
+test('CV text has no hyphens or dashes', () => {
+  const e = cv.experience[0];
+  const fields = [
+    ...e.bullets,
+    e.role,
+    e.type,
+    e.period,
+    ...cv.education.flatMap((x) => [x.school, x.degree, x.period]),
+    ...cv.skills.flatMap((s) => [s.group, ...s.items]),
+    cv.projectsNote,
+    cv.interests,
+    ...cv.languages,
+  ];
+  for (const f of fields) assert.doesNotMatch(f, /[-–—]/, f);
+});
