@@ -139,12 +139,16 @@ export function mountParticles(host: HTMLElement) {
     uInk: { value: new THREE.Color() },
     uAccent: { value: new THREE.Color() },
   };
+  const ink = new THREE.Color();
+  const accent = new THREE.Color();
   const readTheme = () => {
     const css = getComputedStyle(document.documentElement);
-    uniforms.uInk.value.set(css.getPropertyValue('--fg').trim());
-    uniforms.uAccent.value.set(css.getPropertyValue('--accent').trim());
+    ink.set(css.getPropertyValue('--fg').trim());
+    accent.set(css.getPropertyValue('--accent').trim());
   };
   readTheme();
+  uniforms.uInk.value.copy(ink);
+  uniforms.uAccent.value.copy(accent);
   new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
 
@@ -216,6 +220,8 @@ export function mountParticles(host: HTMLElement) {
       spin += dt * 0.18;
     }
 
+    uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));
+    uniforms.uAccent.value.lerp(accent, Math.min(1, dt * 5));
     pointerSpeed *= 1 - Math.min(1, dt * 3);
     ray.setFromCamera(pointer, camera);
     ray.ray.intersectPlane(plane, uniforms.uMouse.value);
