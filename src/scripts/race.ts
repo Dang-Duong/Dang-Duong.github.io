@@ -295,7 +295,7 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
       view.w,
       view.h,
       wide ? -0.2 * view.w * introW - 0.12 * view.w * raceW : 0,
-      (wide ? 0 : 0.2 * view.h * introW + 0.12 * view.h * raceW) + 0.08 * view.h * finishW,
+      (wide ? 0 : 0.2 * view.h * introW + 0.12 * view.h * raceW) + 0.13 * view.h * finishW,
       view.w,
       view.h,
     );

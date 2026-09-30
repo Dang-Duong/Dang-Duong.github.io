@@ -82,8 +82,9 @@ const stories = [
       </div>
 
       <div class="wrap results">
-        <p class="label"><span class="accent">●</span> Official result · Finisher</p>
-        <h2>Finish line. <span class="accent">BSc 2026.</span></h2>
+        <p class="label"><span class="accent">●</span> Race complete · Journey ongoing</p>
+        <h2>There is no<br /><span class="accent">finish line.</span></h2>
+        <p class="creed">Every race ends. Getting better never does — in code, in sport, in life.</p>
         <p class="label next">Next race: <span class="accent">your team?</span> Keep scrolling ↓</p>
       </div>
 
@@ -396,7 +397,12 @@ const stories = [
   }
   .results h2 {
     font-size: clamp(44px, 7vw, 104px);
-    margin: 12px 0 24px;
+    margin: 12px 0 16px;
+  }
+  .creed {
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: var(--muted);
+    max-width: 520px;
   }
 
   .hint {
