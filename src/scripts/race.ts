@@ -248,6 +248,7 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
   const chase = new THREE.Vector3();
   const chaseLook = new THREE.Vector3();
   const tangent = new THREE.Vector3();
+  const heading = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
 
   let p = 0;
@@ -283,16 +284,21 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     });
 
     let km = 0;
-    if (legIndex < 0) athlete.position.copy(TRANSITION);
-    else if (!racing) {
+    const edge = (pts: THREE.Vector3[], i: number) =>
+      tangent.subVectors(pts[Math.min(i + 6, pts.length - 1)], pts[Math.max(i - 6, 0)]).setY(0).normalize();
+    if (legIndex < 0) {
       athlete.position.copy(TRANSITION);
+      edge(paths[0].points, 0);
+    } else if (!racing) {
+      athlete.position.copy(TRANSITION);
+      edge(paths[paths.length - 1].points, paths[paths.length - 1].points.length - 1);
       km = TOTAL_KM;
     } else {
       const pts = paths[legIndex].points;
       const f = legFrac * (pts.length - 1);
       const i = Math.floor(f);
       athlete.position.lerpVectors(pts[i], pts[Math.min(i + 1, pts.length - 1)], f - i);
-      tangent.subVectors(pts[Math.min(i + 3, pts.length - 1)], pts[Math.max(i - 3, 0)]).setY(0).normalize();
+      edge(pts, i);
       km = LEGS.slice(0, legIndex).reduce((s, l) => s + l.km, 0) + legFrac * LEGS[legIndex].km;
     }
     athlete.position.y += 0.06;
@@ -302,16 +308,16 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     want.set(Math.sin(yaw) * 0.72, 0.62, Math.cos(yaw) * 0.72).normalize().multiplyScalar(overviewRadius).add(overviewTarget);
     wantLook.copy(overviewTarget);
     const w = smooth(START - 0.04, START + 0.02, p) * (1 - smooth(FINISH - 0.04, FINISH + 0.02, p));
-    if (w > 0 && racing) {
-      chase.copy(athlete.position).addScaledVector(tangent, -2.8).add(new THREE.Vector3(0, 1.3, 0));
+    heading.lerp(tangent, first || heading.lengthSq() === 0 ? 1 : Math.min(1, dt * 5)).normalize();
+    if (w > 0) {
+      chase.copy(athlete.position).addScaledVector(heading, -2.8).add(new THREE.Vector3(0, 1.3, 0));
       chase.sub(athlete.position).applyAxisAngle(up, dragYaw).add(athlete.position);
-      chaseLook.copy(athlete.position).addScaledVector(tangent, 1.6);
+      chaseLook.copy(athlete.position).addScaledVector(heading, 1.6);
       want.lerp(chase, w);
       wantLook.lerp(chaseLook, w);
     }
-    const ease = first ? 1 : Math.min(1, dt * 4);
-    camPos.lerp(want, ease);
-    look.lerp(wantLook, ease);
+    camPos.copy(want);
+    look.copy(wantLook);
     first = false;
     camera.position.copy(camPos);
     camera.lookAt(look);

@@ -276,8 +276,8 @@ const stories = [
     right: 0;
     pointer-events: none;
     transition:
-      opacity 0.5s,
-      transform 0.5s;
+      opacity 0.2s,
+      transform 0.2s;
   }
   .intro {
     top: 50%;
@@ -401,12 +401,15 @@ const stories = [
     opacity: 0;
     transform: translateY(16px);
     transition:
-      opacity 0.45s,
-      transform 0.45s;
+      opacity 0.2s,
+      transform 0.2s;
   }
   .story.on {
     opacity: 1;
     transform: none;
+    transition:
+      opacity 0.4s 0.2s,
+      transform 0.4s 0.2s;
   }
   .story h2 {
     font-size: clamp(32px, 4vw, 48px);
@@ -424,6 +427,9 @@ const stories = [
   [data-phase='finish'] .results {
     opacity: 1;
     transform: none;
+    transition:
+      opacity 0.5s 0.2s,
+      transform 0.5s 0.2s;
   }
   .results h2 {
     font-size: clamp(44px, 7vw, 104px);
