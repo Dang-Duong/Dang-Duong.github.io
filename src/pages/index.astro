@@ -47,6 +47,24 @@ const results = [
 ---
 
 <Base title={`${cv.name} — ${cv.title}`} description={cv.intro}>
+  <script is:inline slot="head">
+    history.scrollRestoration = 'manual';
+    (function () {
+      var nav = performance.getEntriesByType('navigation')[0];
+      var reload = nav && nav.type === 'reload';
+      if (reload && location.hash) history.replaceState(null, '', location.pathname + location.search);
+      var toTop = function () {
+        if (!location.hash) scrollTo(0, 0);
+      };
+      toTop();
+      addEventListener('load', function () {
+        requestAnimationFrame(toTop);
+      });
+      addEventListener('pageshow', function (e) {
+        if (e.persisted) toTop();
+      });
+    })();
+  </script>
   <header class="wrap top">
     <div class="athlete">
       <span class="live label"><i></i>Live</span>
@@ -165,9 +183,6 @@ const results = [
 <script>
   import { mountRace, LEGS, START } from '../scripts/race';
   import { mountHeartRate, mountRaceTime } from '../scripts/hud';
-
-  history.scrollRestoration = 'manual';
-  if (!location.hash) scrollTo(0, 0);
 
   const $ = (id: string) => document.getElementById(id)!;
   const stage = $('stage');
