@@ -4,6 +4,8 @@ export const cv = {
   location: 'Prague, CZ',
   intro:
     'Software engineer shipping AI-powered web & mobile products end-to-end. Finishing my BSc in Software Development in 2026. Currently training for my first Ironman.',
+  about:
+    'Software engineer shipping AI-powered web and mobile products end-to-end — from LLM features and automation to React/Next.js frontends and React Native apps. I learn fast, care about performance and clean user experience, and like owning features from idea to production. Finishing my BSc in Software Development in 2026. Outside of code I am really into sport and recently started training for my first Ironman.',
   email: 'duongd973@gmail.com',
   phone: '+420 720 072 937',
   links: [
@@ -21,7 +23,7 @@ export const cv = {
         'Built secure MCP API access for AI agents on a lending platform — SHA-256-hashed keys, tenant-scoped row-level security and per-key rate limiting; closed two security-audit findings',
         'Automated studio operations: n8n leave sync, a Slack bot, Chrome Web Store release CI and an automated React code-health scan on every PR across 3 repos',
         'Core engineer on the rebuild of a UK mortgage-origination platform — 396 merged PRs in 3 months across underwriting decisions, lending-policy engine and funds release (React, TanStack Query, Express, Drizzle/Postgres, .NET)',
-        'Grew the platform test suite to ~1,200 tests, added CI gates for schema drift, dead code and formatting, and profiled large tables with the Event Timing API to keep interactions fast at 2,000 rows',
+        'Grew the platform test suite to nearly 1,200 tests, added CI gates for schema drift, dead code and formatting, and profiled large tables with the Event Timing API to keep interactions fast at 2,000 rows',
         'Shipped fintech features in React Native for an investment app — QR wallet deposits, AML verification flows and biometric sessions',
         '1,100+ merged PRs across 10+ client products — web, mobile and backend',
       ],
@@ -36,7 +38,7 @@ export const cv = {
         'Shipped the Hostivio iOS app (Expo / React Native) with EAS builds, OTA updates, push notifications and GitHub Actions CI',
         'Automated Czech police foreign-guest registration (Ubyport) with batch submission, removing a manual legal chore for hosts',
         'Built Stripe Connect payments — host onboarding, balances, payouts — and a direct booking engine with an embeddable widget',
-        'Tackled a 10.7 s mobile LCP by shrinking hero media from 1.35 MB to ~50 KB; standardised PostHog analytics, session replay and error tracking across apps',
+        'Tackled a 10.7 s mobile LCP by shrinking hero media from 1.35 MB to about 50 KB; standardised PostHog analytics, session replay and error tracking across apps',
         'Built the Pultio point-of-sale back office — inventory, catalogue, statistics and EAN barcode restocking',
       ],
     },
@@ -49,9 +51,9 @@ export const cv = {
     { group: 'Quality', items: ['Playwright', 'Vitest / Jest', 'PostHog', 'Sentry'] },
   ],
   education: [
-    { school: 'Unicorn University, Prague', degree: 'BSc Software Development', period: '2024 – 2026 (graduating)' },
-    { school: 'VŠE, Prague', degree: 'Faculty of Informatics and Statistics', period: '2023 – 2024' },
-    { school: 'Gymnázium Ostrov', degree: '8-year programme, Maturita', period: '2015 – 2023' },
+    { school: 'Unicorn University, Prague', degree: "Bachelor's Degree in Software Development — graduating 2026", period: 'Sep 2024 – Present' },
+    { school: 'VŠE, Prague', degree: "Bachelor's studies, Faculty of Informatics and Statistics", period: 'Sep 2023 – Sep 2024' },
+    { school: 'Gymnázium Ostrov, Ostrov nad Ohří', degree: '8-year Program, Concluded with Maturita Exam', period: 'Sep 2015 – Jun 2023' },
   ],
   projectsNote: "Curious what I've built? Let me know and I'll happily walk you through it.",
   interests: 'Really into sport — recently started training for my first Ironman.',

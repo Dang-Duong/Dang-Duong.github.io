@@ -1,5 +1,12 @@
 ---
 import { cv } from '../data/cv';
+
+const contact = [
+  { label: cv.phone },
+  { label: cv.email, href: `mailto:${cv.email}` },
+  { label: 'github.com/Dang-Duong', href: 'https://github.com/Dang-Duong' },
+  { label: 'linkedin.com/in/dang-duong-nguyen', href: 'https://www.linkedin.com/in/dang-duong-nguyen/' },
+];
 ---
 
 <!doctype html>
@@ -11,76 +18,90 @@ import { cv } from '../data/cv';
     <title>{cv.name} — CV</title>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+      href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/font/Serif/cmun-serif.css"
     />
   </head>
   <body>
     <header>
       <h1>{cv.name}</h1>
-      <p class="sub">{cv.title} · {cv.location} · BSc Software Development, graduating 2026</p>
       <p class="contact">
-        {cv.phone} · <a href={`mailto:${cv.email}`}>{cv.email}</a> ·
-        <a href="https://github.com/Dang-Duong">github.com/Dang-Duong</a> ·
-        <a href="https://www.linkedin.com/in/dang-duong-nguyen/">linkedin.com/in/dang-duong-nguyen</a>
+        {
+          contact.map((c, i) => (
+            <>
+              {i > 0 && <span class="sep">◇</span>}
+              {c.href ? <a href={c.href}>{c.label}</a> : c.label}
+            </>
+          ))
+        }
       </p>
     </header>
 
-    <p class="intro">{cv.intro}</p>
+    <section>
+      <h2>About me</h2>
+      <p>{cv.about}</p>
+    </section>
 
-    <h2>Experience</h2>
-    {
-      cv.experience.map((job) => (
-        <section class="job">
-          <div class="row">
-            <strong>{job.company}</strong>
-            <span class="mono">{job.period}</span>
-          </div>
-          <div class="row role">
-            <span>{job.role}</span>
-            <span class="mono">{job.type}</span>
-          </div>
-          <ul>
-            {job.bullets.map((b) => (
-              <li>{b}</li>
-            ))}
-          </ul>
-        </section>
-      ))
-    }
-
-    <p class="note">{cv.projectsNote}</p>
-
-    <h2>Skills</h2>
-    <dl class="skills">
+    <section>
+      <h2>Experience</h2>
       {
-        cv.skills.map((s) => (
-          <>
-            <dt>{s.group}</dt>
-            <dd>{s.items.join(' · ')}</dd>
-          </>
+        cv.experience.map((job) => (
+          <div class="entry">
+            <div class="row">
+              <strong>{job.company}</strong>
+              <span>{job.period}</span>
+            </div>
+            <div class="row">
+              <em>{job.role}</em>
+              <em>{job.type}</em>
+            </div>
+            <ul>
+              {job.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
         ))
       }
-    </dl>
+    </section>
 
-    <h2>Education</h2>
-    {
-      cv.education.map((e) => (
-        <div class="row edu">
-          <span>
-            <strong>{e.school}</strong> — {e.degree}
-          </span>
-          <span class="mono">{e.period}</span>
-        </div>
-      ))
-    }
+    <section>
+      <h2>Education</h2>
+      {
+        cv.education.map((e) => (
+          <div class="entry">
+            <div class="row">
+              <strong>{e.school}</strong>
+              <span>{e.period}</span>
+            </div>
+            <p>{e.degree}</p>
+          </div>
+        ))
+      }
+    </section>
 
-    <h2>Interests & Languages</h2>
-    <dl class="skills">
-      <dt>Interests</dt>
-      <dd>{cv.interests}</dd>
-      <dt>Languages</dt>
-      <dd>{cv.languages.join(' · ')}</dd>
-    </dl>
+    <section>
+      <h2>Skills</h2>
+      <dl class="skills">
+        {
+          cv.skills.map((s) => (
+            <>
+              <dt>{s.group}:</dt>
+              <dd>{s.items.join(', ')}</dd>
+            </>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <p>{cv.projectsNote}</p>
+    </section>
+
+    <section>
+      <h2>Languages</h2>
+      <p>{cv.languages.join(' • ')}</p>
+    </section>
   </body>
 </html>
 
@@ -95,8 +116,8 @@ import { cv } from '../data/cv';
     padding: 0;
   }
   body {
-    font: 9.1pt/1.38 'Inter', sans-serif;
-    color: #111;
+    font: 9.5pt/1.27 'Computer Modern Serif', 'Latin Modern Roman', Georgia, serif;
+    color: #000;
     background: #fff;
     max-width: 180mm;
     margin: 0 auto;
@@ -111,72 +132,69 @@ import { cv } from '../data/cv';
     color: inherit;
     text-decoration: none;
   }
-  h1 {
-    font: 800 30pt/1 'Barlow Condensed', sans-serif;
-    text-transform: uppercase;
-    border-bottom: 4px solid #d4ff3a;
-    display: inline-block;
-    padding-bottom: 2px;
+  header {
+    text-align: center;
+    margin-bottom: 8px;
   }
-  .sub {
-    font-weight: 600;
-    margin-top: 6px;
+  h1 {
+    font-size: 21pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
   }
   .contact {
-    color: #555;
-    font-size: 8.8pt;
+    margin-top: 3px;
   }
-  .intro {
-    margin-top: 6px;
+  .sep {
+    margin: 0 5px;
+    font-size: 8pt;
+  }
+  section {
+    margin-top: 7px;
   }
   h2 {
-    font: 700 13pt 'Barlow Condensed', sans-serif;
+    font-size: 10.5pt;
+    font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-bottom: 1px solid #ddd;
-    margin: 11px 0 5px;
-    padding-bottom: 2px;
+    border-bottom: 0.8px solid #000;
+    padding-bottom: 1px;
+    margin-bottom: 4px;
+  }
+  section > p,
+  .entry,
+  .skills {
+    padding-left: 14pt;
+  }
+  .entry + .entry {
+    margin-top: 5px;
   }
   .row {
     display: flex;
     justify-content: space-between;
     gap: 12px;
   }
-  .mono {
-    font: 500 8pt 'JetBrains Mono', monospace;
-    color: #555;
+  .row span,
+  .row em:last-child {
     white-space: nowrap;
   }
-  .job {
-    margin-bottom: 8px;
-    break-inside: avoid;
-  }
-  .job strong {
-    font-size: 10.5pt;
-  }
-  .role {
-    font-style: italic;
-    color: #333;
-  }
   ul {
-    margin: 3px 0 0 14px;
+    list-style: none;
+    margin-top: 1px;
   }
   li {
-    margin-bottom: 1px;
+    padding-left: 9pt;
+    text-indent: -9pt;
+  }
+  li::before {
+    content: '- ';
   }
   .skills {
     display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 2px 12px;
+    grid-template-columns: 105pt 1fr;
+    column-gap: 8pt;
   }
   dt {
-    font-weight: 600;
-  }
-  .note {
-    font-style: italic;
-    color: #555;
-  }
-  .edu {
-    margin-bottom: 2px;
+    font-weight: bold;
   }
 </style>
