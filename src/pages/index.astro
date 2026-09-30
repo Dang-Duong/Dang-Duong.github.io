@@ -78,7 +78,21 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   const hero = document.getElementById('hero')!;
   const panel = document.getElementById('contact')!;
-  mountParticles(document.getElementById('particles')!, hero, panel);
+  const splitA = document.querySelector<HTMLElement>('.split.a')!;
+  const splitB = document.querySelector<HTMLElement>('.split.b')!;
+  const fades = [...document.querySelectorAll<HTMLElement>('.meta, .kicker')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let shown = -1;
+  const onProgress = (p: number) => {
+    if (Math.abs(p - shown) < 0.001) return;
+    shown = p;
+    if (!still) {
+      splitA.style.transform = `translate3d(${-22 * p}vw, 0, 0)`;
+      splitB.style.transform = `translate3d(${22 * p}vw, 0, 0)`;
+    }
+    for (const el of fades) el.style.opacity = String(Math.max(0, 1 - p * 1.4));
+  };
+  mountParticles(document.getElementById('particles')!, hero, panel, onProgress);
   mountCursor(hero);
 
   let glide = 0;
@@ -230,7 +244,6 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     inset: 0;
     z-index: 5;
     pointer-events: none;
-    mix-blend-mode: difference;
   }
   #particles :global(canvas) {
     width: 100%;
@@ -243,17 +256,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   .split {
     display: inline-block;
-    transition: none;
-  }
-  .split.a {
-    transform: translateX(calc(var(--p, 0) * -22vw));
-  }
-  .split.b {
-    transform: translateX(calc(var(--p, 0) * 22vw));
-  }
-  .meta,
-  .kicker {
-    opacity: calc(1 - var(--p, 0) * 1.4);
+    will-change: transform;
   }
   h1 {
     font-size: clamp(52px, 10.5vw, 176px);
@@ -388,10 +391,6 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   @media (prefers-reduced-motion: reduce) {
     .line > * {
-      transform: none;
-    }
-    .split.a,
-    .split.b {
       transform: none;
     }
   }

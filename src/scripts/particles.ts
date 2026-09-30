@@ -78,8 +78,6 @@ const vertexShader = /* glsl */ `
   uniform float uMotion;
   uniform vec3 uMouse;
   uniform float uForce;
-  uniform vec3 uInk;
-  varying vec3 vColor;
   varying float vAlpha;
 
   vec3 shape(float i) {
@@ -110,25 +108,32 @@ const vertexShader = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * (0.5 + seed) / -mv.z;
 
-    vColor = uInk;
     vAlpha = (0.7 + 0.3 * seed) * smoothstep(-12.0, -4.0, mv.z);
   }
 `;
 
 const fragmentShader = /* glsl */ `
-  varying vec3 vColor;
+  uniform vec3 uInk;
+  uniform vec3 uPaper;
+  uniform float uEdge;
   varying float vAlpha;
   void main() {
     float r = length(gl_PointCoord - 0.5);
     if (r > 0.5) discard;
-    gl_FragColor = vec4(vColor, smoothstep(0.5, 0.0, r) * vAlpha);
+    vec3 color = gl_FragCoord.y < uEdge ? uPaper : uInk;
+    gl_FragColor = vec4(color, smoothstep(0.5, 0.0, r) * vAlpha);
   }
 `;
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const ease = (t: number) => t * t * (3 - 2 * t);
 
-export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel: HTMLElement) {
+export async function mountParticles(
+  host: HTMLElement,
+  hero: HTMLElement,
+  panel: HTMLElement,
+  onProgress: (p: number) => void,
+) {
   await document.fonts.load('800 100px "Barlow Condensed"').catch(() => {});
   let renderer: THREE.WebGLRenderer;
   try {
@@ -137,7 +142,8 @@ export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel
     host.remove();
     return;
   }
-  const dpr = Math.min(devicePixelRatio, 2);
+  const mobile = matchMedia('(max-width: 900px)').matches;
+  const dpr = Math.min(devicePixelRatio, mobile ? 1.5 : 2);
   renderer.setPixelRatio(dpr);
   host.prepend(renderer.domElement);
 
@@ -145,7 +151,7 @@ export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
   camera.position.z = 6;
 
-  const n = matchMedia('(max-width: 900px)').matches ? 14000 : 30000;
+  const n = mobile ? 9000 : 30000;
   const shapes = [text('NDD', n, 4.2), wheel(n), text('</>', n, 3.9), text('140.6', n, 4.6)];
   const count = shapes.length;
   shapes.push(shapes[0]);
@@ -162,8 +168,29 @@ export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
-    uInk: { value: new THREE.Color('#ffffff') },
+    uInk: { value: new THREE.Color() },
+    uPaper: { value: new THREE.Color() },
+    uEdge: { value: 0 },
   };
+  const ink = new THREE.Color();
+  const paper = new THREE.Color();
+  let themeReady = false;
+  const readTheme = () => {
+    const css = getComputedStyle(document.documentElement);
+    const fg = css.getPropertyValue('--fg').trim();
+    const bg = css.getPropertyValue('--bg').trim();
+    if (!fg || !bg) return;
+    ink.set(fg);
+    paper.set(bg);
+    if (!themeReady) {
+      uniforms.uInk.value.copy(ink);
+      uniforms.uPaper.value.copy(paper);
+      themeReady = true;
+    }
+  };
+  readTheme();
+  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
 
   const points = new THREE.Points(
     geo,
@@ -234,7 +261,11 @@ export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel
 
     const panelTop = panel.getBoundingClientRect().top;
     const raw = clamp01(1 - panelTop / innerHeight);
-    document.documentElement.style.setProperty('--p', raw.toFixed(4));
+    onProgress(raw);
+    if (!themeReady) readTheme();
+    uniforms.uEdge.value = Math.max(0, host.clientHeight - panelTop) * dpr;
+    uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));
+    uniforms.uPaper.value.lerp(paper, Math.min(1, dt * 5));
     const p = ease(raw);
     const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
     const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / innerHeight) * 2 * view.halfH;
