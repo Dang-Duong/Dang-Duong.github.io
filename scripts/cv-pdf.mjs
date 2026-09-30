@@ -16,8 +16,7 @@ const entry = (title, date, lines, bullets = []) =>
 
 const doc = String.raw`\documentclass{resume}
 \usepackage{fontspec}
-\usepackage[left=0.75in,top=0.5in,right=0.75in,bottom=0.5in]{geometry}
-\def\sectionskip{\medskip}
+\usepackage[left=0.75in,top=0.6in,right=0.75in,bottom=0.6in]{geometry}
 \usepackage{enumitem}
 \setlist[itemize]{label=-, leftmargin=0.9em, labelsep=0.4em, nosep, before=\vspace{-0.6\parskip}}
 \usepackage{hyperref}
@@ -26,10 +25,6 @@ const doc = String.raw`\documentclass{resume}
 
 \begin{document}
 \printaddress{${tex(cv.phone)} \\ ${tex(cv.email)} \\ \href{https://github.com/Dang-Duong}{github.com/Dang-Duong} \\ \href{https://www.linkedin.com/in/dang-duong-nguyen/}{linkedin.com/in/dang-duong-nguyen}}
-
-\begin{rSection}{About me}
-${tex(cv.about)}
-\end{rSection}
 
 \begin{rSection}{Experience}
 ${cv.experience.map((j) => entry(j.company, j.period, [`${j.role} · ${j.type}`], j.bullets)).join('\n\n')}
@@ -47,6 +42,10 @@ ${cv.skills.map((s) => `${tex(s.group)}: & ${tex(s.items.join(', '))} \\\\`).joi
 
 \begin{rSection}{Projects}
 ${tex(cv.projectsNote)}
+\end{rSection}
+
+\begin{rSection}{Interests}
+${tex(cv.interests)}
 \end{rSection}
 
 \begin{rSection}{Languages}
