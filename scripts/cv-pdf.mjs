@@ -8,8 +8,9 @@ const server = createServer(async (req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/cv/, '');
   const file = join('dist', path.endsWith('/') ? `${path}index.html` : path);
   try {
+    const body = await readFile(file);
     res.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
-    res.end(await readFile(file));
+    res.end(body);
   } catch {
     res.writeHead(404).end();
   }

@@ -37,7 +37,7 @@ export const cv = {
         'Shipped the Hostivio iOS app (Expo / React Native) with EAS builds, OTA updates, push notifications and GitHub Actions CI',
         'Automated Czech police foreign-guest registration (Ubyport) with batch submission, removing a manual legal chore for hosts',
         'Built Stripe Connect payments — host onboarding, balances, payouts — and a direct booking engine with an embeddable widget',
-        'Cut homepage mobile LCP from 10.7 s by shrinking hero media from 1.35 MB to ~50 KB; standardised PostHog analytics, session replay and error tracking across apps',
+        'Tackled a 10.7 s mobile LCP by shrinking hero media from 1.35 MB to ~50 KB; standardised PostHog analytics, session replay and error tracking across apps',
         'Built the Pultio point-of-sale back office — inventory, catalogue, statistics and EAN barcode restocking',
       ],
     },
