@@ -32,10 +32,7 @@ const stories = [
   <header class="wrap top">
     <div class="athlete">
       <span class="live label"><i></i>Live</span>
-      <div>
-        <strong>{cv.name}</strong>
-        <span class="label">Bib #0973 · {cv.title}<span class="loc">, {cv.location}</span></span>
-      </div>
+      <span class="label">Bib #0973 · {cv.title}<span class="loc">, {cv.location}</span></span>
     </div>
     <span class="label clock" id="clock">Prague --:--:--</span>
     <a href="#contact" class="label">Contact</a>
@@ -167,14 +164,6 @@ const stories = [
     display: flex;
     align-items: center;
     gap: 14px;
-  }
-  .athlete div {
-    display: flex;
-    flex-direction: column;
-  }
-  .top strong {
-    font: 800 20px var(--display);
-    text-transform: uppercase;
   }
   .top a {
     text-decoration: none;
