@@ -3,11 +3,6 @@ import Base from '../layouts/Base.astro';
 import { cv } from '../data/cv';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const stories = [
-  { leg: 'Swim', km: '3.8 km', title: 'Learning to breathe', text: '2023–24 · Informatics at VŠE, then Software Development at Unicorn University.' },
-  { leg: 'Bike', km: '180 km', title: 'Building speed', text: '2025 · Founding engineer at Hostivio & Pultio — AI ID scanning, an iOS app, Stripe payouts.' },
-  { leg: 'Run', km: '42.2 km', title: 'Going the distance', text: '2025–26 · Yolk Studio — fintech, AI and mobile products for clients.' },
-];
 ---
 
 <Base title={`${cv.name} — ${cv.title}`} description={cv.intro}>
@@ -38,60 +33,21 @@ const stories = [
     <a href="#contact" class="label">Contact</a>
   </header>
 
-  <main id="track" class="track">
-    <div class="stage" id="stage" data-phase="intro">
-      <div id="course" aria-hidden="true"></div>
-
-      <div class="wrap intro">
-        <p class="label"><span class="accent">●</span> Live tracking · Athlete #0973</p>
-        <h1>Nguyen Dang<br /><span class="accent">Duong</span></h1>
-        <p class="lede">Software engineer in Prague. AI, web &amp; mobile. Training for my first Ironman.</p>
-        <p class="label cue">Scroll to start the race <span class="accent">↓</span></p>
-      </div>
-
-      <div class="countdown" id="countdown" aria-hidden="true"></div>
-
-      <div class="wrap hud" aria-hidden="true">
-        <div class="leg">
-          <span class="label" id="leg-no">Leg 1/3</span>
-          <b id="leg-name">Swim</b>
-        </div>
-        <p class="distance"><span id="km">0.0</span><small>/ 226 km</small></p>
-        <div class="bar">
-          <span style="--c:#3ad7ff;--w:20"><i id="bar-0"></i></span>
-          <span style="--c:#d4ff3a;--w:28"><i id="bar-1"></i></span>
-          <span style="--c:#ff6a3d;--w:24"><i id="bar-2"></i></span>
-        </div>
-      </div>
-
-      <div class="wrap stories">
-        {
-          stories.map((s, i) => (
-            <article class="story" data-leg={i}>
-              <p class="label">
-                <span class="accent">{s.leg}</span> · {s.km}
-              </p>
-              <h2>{s.title}</h2>
-              <p>{s.text}</p>
-            </article>
-          ))
-        }
-      </div>
-
-      <div class="wrap results">
-        <p class="label"><span class="accent">●</span> Race complete · Journey ongoing</p>
-        <h2>There is no<br /><span class="accent">finish line.</span></h2>
-        <p class="creed">Every race ends. Getting better never does — in code, in sport, in life.</p>
-        <p class="label next">Next race: <span class="accent">your team?</span> Keep scrolling ↓</p>
-      </div>
-
-      <span class="label hint">Move your cursor through the particles</span>
+  <main class="hero">
+    <div id="particles" aria-hidden="true">
+      <span class="label hint">Move through the particles · click to switch</span>
+    </div>
+    <div class="wrap intro">
+      <p class="label"><span class="accent">●</span> Swim · Bike · Run · Ship</p>
+      <h1>Nguyen Dang<br /><span class="accent">Duong</span></h1>
+      <p class="lede">Software engineer in Prague. AI, web &amp; mobile. Training for my first Ironman.</p>
     </div>
   </main>
 
   <footer class="wrap" id="contact">
-    <p class="label"><b class="accent">FIN</b> — After the finish line</p>
-    <h2>Get in <span class="accent">contact</span></h2>
+    <p class="label"><span class="accent">●</span> Race complete · Journey ongoing</p>
+    <h2>There is no<br /><span class="accent">finish line.</span></h2>
+    <p class="creed">Every race ends. Getting better never does — in code, in sport, in life.</p>
     <a class="email" href={`mailto:${cv.email}`}>{cv.email}</a>
     <ul class="links">
       {
@@ -110,32 +66,11 @@ const stories = [
 </Base>
 
 <script>
-  import { mountRace, LEGS, START } from '../scripts/race';
+  import { mountParticles } from '../scripts/particles';
 
-  const $ = (id: string) => document.getElementById(id)!;
-  const stage = $('stage');
-  const stories = [...document.querySelectorAll<HTMLElement>('.story')];
+  mountParticles(document.getElementById('particles')!);
 
-  mountRace($('course'), $('track'), (s) => {
-    const phase = s.leg < 0 ? (s.p < START - 0.08 ? 'intro' : 'start') : s.leg >= LEGS.length ? 'finish' : 'race';
-    if (stage.dataset.phase !== phase) stage.dataset.phase = phase;
-
-    const n = Math.floor((s.p - (START - 0.08)) / 0.02);
-    $('countdown').textContent = phase === 'start' && n >= 0 ? (['3', '2', '1', 'GO'][n] ?? '') : '';
-
-    const leg = Math.min(Math.max(s.leg, 0), LEGS.length - 1);
-    $('leg-no').textContent = `Leg ${leg + 1}/${LEGS.length}`;
-    $('leg-name').textContent = LEGS[leg].name;
-    $('leg-name').style.color = LEGS[leg].color;
-    $('km').textContent = s.km.toFixed(1);
-    LEGS.forEach((_, j) => {
-      const f = j < s.leg ? 1 : j === s.leg ? s.legFrac : 0;
-      $(`bar-${j}`).style.transform = `scaleX(${f})`;
-    });
-    stories.forEach((el, j) => el.classList.toggle('on', j === s.leg));
-  });
-
-  const clock = $('clock');
+  const clock = document.getElementById('clock')!;
   const fmt = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Europe/Prague',
     hour: '2-digit',
@@ -194,68 +129,36 @@ const stories = [
     font-variant-numeric: tabular-nums;
   }
 
-  .track {
-    height: 800vh;
+  .hero {
     position: relative;
-  }
-  .stage {
-    position: sticky;
-    top: 0;
     height: 100svh;
+    min-height: 560px;
+    display: flex;
+    align-items: center;
     overflow: hidden;
-    background: radial-gradient(ellipse at 60% 50%, #14171b 0%, var(--bg) 70%);
+    background: radial-gradient(ellipse at 65% 50%, #14171b 0%, var(--bg) 70%);
   }
-  #course {
+  #particles {
     position: absolute;
-    inset: 0;
-    cursor: grab;
-    touch-action: pan-y;
+    inset: 0 0 0 38%;
+    cursor: pointer;
   }
-  #course:active {
-    cursor: grabbing;
-  }
-  #course :global(canvas) {
+  #particles :global(canvas) {
     width: 100%;
     height: 100%;
     display: block;
   }
-  #course :global(.course-labels) {
+  .hint {
     position: absolute;
-    inset: 0;
+    right: 16px;
+    bottom: 16px;
+    opacity: 0.7;
     pointer-events: none;
-  }
-  #course :global(.course-tag) {
-    font: 500 11px var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    background: rgba(11, 12, 14, 0.8);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--c);
-    padding: 3px 8px;
-    white-space: nowrap;
-  }
-  #course :global(.course-tag b) {
-    color: var(--c);
-    font-weight: 500;
-  }
-
-  .intro,
-  .hud,
-  .stories,
-  .results,
-  .countdown {
-    position: absolute;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    transition:
-      opacity 0.2s,
-      transform 0.2s;
   }
   .intro {
-    top: 50%;
-    transform: translateY(-50%);
+    position: relative;
+    width: 100%;
+    pointer-events: none;
   }
   .intro h1 {
     font-size: clamp(56px, 9vw, 140px);
@@ -267,148 +170,20 @@ const stories = [
     color: var(--muted);
     max-width: 440px;
   }
-  .cue {
-    margin-top: 32px;
-    animation: nudge 1.6s ease-in-out infinite;
-  }
-  @keyframes nudge {
-    50% {
-      transform: translateY(6px);
-    }
-  }
-  [data-phase]:not([data-phase='intro']) .intro {
-    opacity: 0;
-    transform: translateY(-60%);
-  }
-
-  .countdown {
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
-    font: 800 clamp(120px, 26vw, 360px) / 1 var(--display);
-    color: var(--accent);
-    text-shadow: 0 0 60px rgba(212, 255, 58, 0.35);
-  }
-
-  .hud {
-    top: 88px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 12px 32px;
-    align-items: end;
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-  [data-phase='race'] .hud {
-    opacity: 1;
-    transform: none;
-  }
-  .leg b {
-    display: block;
-    font: 800 clamp(40px, 6vw, 72px) / 0.9 var(--display);
-    text-transform: uppercase;
-  }
-  .distance {
-    font: 800 clamp(28px, 3vw, 40px) / 1 var(--display);
-    font-variant-numeric: tabular-nums;
-    justify-self: end;
-  }
-  .distance small {
-    font: 500 11px var(--mono);
-    color: var(--muted);
-    margin-left: 6px;
-  }
-  .bar {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 4px;
-  }
-  .bar span {
-    flex: var(--w);
-    height: 4px;
-    background: var(--line);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .bar i {
-    display: block;
-    height: 100%;
-    background: var(--c);
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-
-  .stories {
-    bottom: 48px;
-  }
-  .story {
-    position: absolute;
-    bottom: 0;
-    max-width: 440px;
-    padding: 20px 22px;
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--accent);
-    background: rgba(11, 12, 14, 0.82);
-    backdrop-filter: blur(8px);
-    border-radius: 10px;
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity 0.2s,
-      transform 0.2s;
-  }
-  .story.on {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 0.4s 0.2s,
-      transform 0.4s 0.2s;
-  }
-  .story h2 {
-    font-size: clamp(32px, 4vw, 48px);
-    margin: 8px 0 10px;
-  }
-  .story > p:not(.label) {
-    color: var(--muted);
-  }
-
-  .results {
-    bottom: 48px;
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  [data-phase='finish'] .results {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 0.5s 0.2s,
-      transform 0.5s 0.2s;
-  }
-  .results h2 {
-    font-size: clamp(44px, 7vw, 104px);
-    margin: 12px 0 16px;
-  }
-  .creed {
-    font-size: clamp(16px, 1.6vw, 20px);
-    color: var(--muted);
-    max-width: 520px;
-  }
-
-  .hint {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    opacity: 0.7;
-    pointer-events: none;
-  }
 
   footer {
     padding-top: 120px;
     padding-bottom: 40px;
   }
   footer h2 {
-    font-size: clamp(56px, 10vw, 150px);
-    margin: 16px 0 32px;
+    font-size: clamp(48px, 8vw, 120px);
+    margin: 16px 0 16px;
+  }
+  .creed {
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 48px;
   }
   .email {
     font: 600 clamp(22px, 4vw, 40px) var(--display);
@@ -450,9 +225,6 @@ const stories = [
   .copy {
     margin-top: 96px;
   }
-  .next {
-    margin-top: 16px;
-  }
 
   @media (max-width: 900px) {
     .clock,
@@ -460,42 +232,14 @@ const stories = [
     .hint {
       display: none;
     }
-    .intro {
-      top: auto;
-      bottom: 32px;
-      transform: none;
+    .hero {
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 40px;
     }
-    [data-phase]:not([data-phase='intro']) .intro {
-      transform: translateY(-8%);
-    }
-    .intro h1 {
-      margin: 12px 0 16px;
-    }
-    .cue {
-      margin-top: 20px;
-    }
-    .hud {
-      top: 76px;
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-    .stories {
-      bottom: 24px;
-    }
-    .story {
-      left: 16px;
-      right: 16px;
-      max-width: none;
-      padding: 14px 16px;
-    }
-    .results {
-      bottom: 24px;
-    }
-    .hud {
-      grid-template-columns: auto 1fr;
-    }
-    .results h2 {
-      margin: 8px 0 14px;
+    #particles {
+      inset: 64px 0 auto 0;
+      height: 52svh;
     }
   }
 </style>

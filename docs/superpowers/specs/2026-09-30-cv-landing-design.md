@@ -64,3 +64,7 @@ Blog, CMS, analytics, i18n, projects gallery.
 ## Revision 4 (2026-09-30): particle athlete, minimal stats
 - 3D course replaced by ~32k GPU particles (14k on mobile) that morph with scroll: sphere → swimmer → cyclist → runner → medal (shapes sampled from emoji, text fallback), per-leg colours, swirl between shapes, cursor repulsion, scroll-speed "wind".
 - Stats reduced: HUD = leg + distance + progress bar; one line per leg; finish = 3 highlights (1,582 PRs, 10+ products, 2 AI features in production).
+
+## Revision 5 (2026-09-30): simple one-screen page
+- Scroll-driven race removed. Hero = name + one-line bio beside a particle render that auto-morphs swimmer → cyclist → runner → medal every ~4s (click to skip, cursor scatters). Contact section opens with "There is no finish line."
+- CV PDF generated with LaTeX (`resume.cls`, same as the original CV) from `cv.ts`; short, metric-free bullets.

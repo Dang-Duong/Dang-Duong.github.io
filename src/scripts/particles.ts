@@ -1,58 +1,15 @@
 import * as THREE from 'three';
 
-export type RaceState = { p: number; leg: number; legFrac: number; km: number };
-
-export const TOTAL_KM = 226;
-export const START = 0.12;
-export const FINISH = 0.86;
-
-export const LEGS = [
-  { name: 'Swim', km: 3.8, color: '#3ad7ff', glyph: '🏊', from: START, to: 0.34 },
-  { name: 'Bike', km: 180, color: '#d4ff3a', glyph: '🚴', from: 0.34, to: 0.6 },
-  { name: 'Run', km: 42.2, color: '#ff6a3d', glyph: '🏃', from: 0.6, to: FINISH },
+const GLYPHS = [
+  { glyph: '🏊', fallback: 'SWIM' },
+  { glyph: '🚴', fallback: 'BIKE' },
+  { glyph: '🏃', fallback: 'RUN' },
+  { glyph: '🏅', fallback: '2026' },
 ];
+const HOLD_MS = 4200;
 
-const MORPH_KEYS: [number, number][] = [
-  [START - 0.03, 0],
-  [START + 0.03, 1],
-  [0.32, 1],
-  [0.37, 2],
-  [0.58, 2],
-  [0.63, 3],
-  [FINISH - 0.02, 3],
-  [FINISH + 0.04, 4],
-];
-
-const COLORS = ['#f2f2ee', '#3ad7ff', '#d4ff3a', '#ff6a3d', '#ffc83a'];
+const COLORS = ['#3ad7ff', '#d4ff3a', '#ff6a3d', '#ffc83a', '#3ad7ff'];
 const SIZE = 3.4;
-
-const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-const smooth = (a: number, b: number, x: number) => {
-  const t = clamp01((x - a) / (b - a));
-  return t * t * (3 - 2 * t);
-};
-
-function morphAt(p: number) {
-  if (p <= MORPH_KEYS[0][0]) return MORPH_KEYS[0][1];
-  for (let i = 1; i < MORPH_KEYS.length; i++) {
-    const [p1, m1] = MORPH_KEYS[i];
-    const [p0, m0] = MORPH_KEYS[i - 1];
-    if (p <= p1) return m0 + (m1 - m0) * smooth(p0, p1, p);
-  }
-  return MORPH_KEYS[MORPH_KEYS.length - 1][1];
-}
-
-function sphere(n: number) {
-  const out = new Float32Array(n * 3);
-  const golden = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < n; i++) {
-    const y = 1 - (i / (n - 1)) * 2;
-    const r = Math.sqrt(1 - y * y);
-    const k = 1.25 + (Math.random() - 0.5) * 0.12;
-    out.set([Math.cos(golden * i) * r * k, y * k, Math.sin(golden * i) * r * k], i * 3);
-  }
-  return out;
-}
 
 function sampleGlyph(glyph: string, fallback: string, n: number) {
   const S = 220;
@@ -104,7 +61,6 @@ const vertexShader = /* glsl */ `
   attribute float seed;
   uniform float uMorph;
   uniform float uTime;
-  uniform float uSpeed;
   uniform float uSize;
   uniform float uMotion;
   uniform vec3 uMouse;
@@ -131,8 +87,6 @@ const vertexShader = /* glsl */ `
     float swirl = sin(t * 3.14159);
     pos += vec3(sin(seed * 41.0 + uTime), cos(seed * 23.0 + uTime * 1.3), sin(seed * 17.0 + uTime * 0.7)) * swirl * 0.9;
     pos += vec3(sin(uTime * 1.4 + seed * 30.0), cos(uTime * 1.1 + seed * 50.0), 0.0) * 0.025 * uMotion;
-    pos.x -= uSpeed * (0.3 + seed * 1.4);
-    pos.y += uSpeed * (seed - 0.5) * 0.25;
 
     vec4 world = modelMatrix * vec4(pos, 1.0);
     vec2 d = world.xy - uMouse.xy;
@@ -160,7 +114,7 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
-export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: RaceState) => void) {
+export function mountParticles(host: HTMLElement) {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
@@ -174,15 +128,11 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
-  camera.position.set(0, 0, 6.5);
 
   const n = matchMedia('(max-width: 900px)').matches ? 14000 : 32000;
   const geo = new THREE.BufferGeometry();
-  const shapes = [
-    sphere(n),
-    ...LEGS.map((l) => sampleGlyph(l.glyph, l.name.toUpperCase(), n)),
-    sampleGlyph('🏅', '2026', n),
-  ];
+  const shapes = GLYPHS.map((g) => sampleGlyph(g.glyph, g.fallback, n));
+  shapes.push(shapes[0]);
   geo.setAttribute('position', new THREE.BufferAttribute(shapes[0], 3));
   shapes.forEach((s, i) => geo.setAttribute(`s${i}`, new THREE.BufferAttribute(s, 3)));
   geo.setAttribute('seed', new THREE.BufferAttribute(Float32Array.from({ length: n }, Math.random), 1));
@@ -191,7 +141,6 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
   const uniforms = {
     uMorph: { value: 0 },
     uTime: { value: 0 },
-    uSpeed: { value: 0 },
     uSize: { value: 26 * dpr },
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
@@ -212,15 +161,12 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
   points.frustumCulled = false;
   scene.add(points);
 
-  const view = { w: 1, h: 1, z: 6.5 };
   const resize = () => {
     const { clientWidth: w, clientHeight: h } = host;
     if (!w || !h) return;
-    view.w = w;
-    view.h = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    view.z = 6.5 * Math.max(1, 0.9 / camera.aspect);
+    camera.position.z = 6.5 * Math.max(1, 0.9 / camera.aspect);
     camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(host);
@@ -231,7 +177,7 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
   let pointerSpeed = 0;
   const ray = new THREE.Raycaster();
   const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-  addEventListener(
+  host.addEventListener(
     'pointermove',
     (e) => {
       const rect = host.getBoundingClientRect();
@@ -243,14 +189,17 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     },
     { passive: true },
   );
-  document.addEventListener('pointerleave', () => (pointerIn = false));
+  host.addEventListener('pointerleave', () => (pointerIn = false));
 
-  let p = 0;
-  let lastP = 0;
-  let pace = 0;
+  let target = 0;
+  let nextAt = performance.now() + HOLD_MS;
+  const advance = () => {
+    target += 1;
+    nextAt = performance.now() + HOLD_MS;
+  };
+  host.addEventListener('click', advance);
+
   let last = performance.now();
-  let first = true;
-
   const frame = (now: number) => {
     if (!visible) {
       running = false;
@@ -259,22 +208,14 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     const dt = Math.min((now - last) / 1000, 0.1) || 1 / 60;
     last = now;
 
-    const rect = track.getBoundingClientRect();
-    const target = clamp01(-rect.top / Math.max(1, rect.height - innerHeight));
-    p = reduced || first ? target : p + (target - p) * Math.min(1, dt * 6);
-    pace += (Math.abs(p - lastP) / dt - pace) * Math.min(1, dt * 4);
-    lastP = p;
-    first = false;
-
-    let leg = LEGS.findIndex((l) => p >= l.from && p < l.to);
-    if (leg === -1) leg = p < START ? -1 : LEGS.length;
-    const racing = leg >= 0 && leg < LEGS.length;
-    const legFrac = racing ? (p - LEGS[leg].from) / (LEGS[leg].to - LEGS[leg].from) : leg < 0 ? 0 : 1;
-    const km = leg < 0 ? 0 : !racing ? TOTAL_KM : LEGS.slice(0, leg).reduce((s, l) => s + l.km, 0) + legFrac * LEGS[leg].km;
-
-    uniforms.uMorph.value = morphAt(p);
+    if (!reduced && now > nextAt) advance();
+    const m = uniforms.uMorph;
+    m.value += (target - m.value) * Math.min(1, dt * 2.2);
+    if (m.value > GLYPHS.length - 0.001) {
+      m.value -= GLYPHS.length;
+      target -= GLYPHS.length;
+    }
     if (!reduced) uniforms.uTime.value = now / 1000;
-    uniforms.uSpeed.value += ((reduced ? 0 : Math.min(1.4, pace * 12)) - uniforms.uSpeed.value) * Math.min(1, dt * 5);
 
     pointerSpeed *= 1 - Math.min(1, dt * 3);
     ray.setFromCamera(pointer, camera);
@@ -283,24 +224,9 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     uniforms.uForce.value += (force - uniforms.uForce.value) * Math.min(1, dt * 6);
 
     const sway = reduced ? 0 : Math.sin(now / 3200) * 0.35;
-    points.rotation.y += (sway + pointer.x * 0.25 - points.rotation.y) * Math.min(1, dt * 3);
-    points.rotation.x += (-pointer.y * 0.12 - points.rotation.x) * Math.min(1, dt * 3);
+    points.rotation.y += (sway + (pointerIn ? pointer.x * 0.25 : 0) - points.rotation.y) * Math.min(1, dt * 3);
+    points.rotation.x += ((pointerIn ? -pointer.y * 0.12 : 0) - points.rotation.x) * Math.min(1, dt * 3);
 
-    const wide = camera.aspect > 1.1;
-    const introW = 1 - smooth(START - 0.1, START - 0.02, p);
-    const finishW = smooth(FINISH - 0.02, FINISH + 0.05, p);
-    const raceW = 1 - introW - finishW;
-    camera.position.z = view.z * (1 + 0.45 * finishW);
-    camera.setViewOffset(
-      view.w,
-      view.h,
-      wide ? -0.2 * view.w * introW - 0.12 * view.w * raceW : 0,
-      (wide ? 0 : 0.2 * view.h * introW + 0.12 * view.h * raceW) + 0.13 * view.h * finishW,
-      view.w,
-      view.h,
-    );
-
-    onUpdate({ p, leg, legFrac, km });
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   };
@@ -313,5 +239,5 @@ export function mountRace(host: HTMLElement, track: HTMLElement, onUpdate: (s: R
     running = true;
     last = performance.now();
     requestAnimationFrame(frame);
-  }).observe(track);
+  }).observe(host);
 }
