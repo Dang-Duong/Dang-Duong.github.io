@@ -110,3 +110,76 @@ h3 {
     transition: none !important;
   }
 }
+
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cursor-on .cursor-dot,
+.cursor-on .cursor-ring {
+  opacity: 1;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.cursor-ring {
+  --s: 36px;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  display: grid;
+  place-items: center;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  transition:
+    opacity 0.2s,
+    width 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
+    height 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
+    margin 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
+    background-color 0.3s;
+}
+
+.cursor-ring span {
+  font: 500 9px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cursor-ring.morph {
+  --s: 68px;
+}
+
+.cursor-ring.morph span {
+  opacity: 1;
+}
+
+.cursor-ring.hover {
+  --s: 56px;
+  background: #fff;
+}
+
+.cursor-ring.down {
+  --s: 22px;
+}

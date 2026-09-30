@@ -232,15 +232,14 @@ export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel
       spin += dt * 0.18;
     }
 
-    const p = ease(clamp01(1 - panel.getBoundingClientRect().top / innerHeight));
+    const panelTop = panel.getBoundingClientRect().top;
+    const raw = clamp01(1 - panelTop / innerHeight);
+    document.documentElement.style.setProperty('--p', raw.toFixed(4));
+    const p = ease(raw);
     const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
-    if (view.wide) {
-      from.set(0, view.halfH * 0.28, 0);
-      to.set(view.halfW * 0.5, -view.halfH * 0.05, 0);
-    } else {
-      from.set(0, view.halfH * 0.32, 0);
-      to.set(view.halfW * 0.35, view.halfH * 0.62, 0);
-    }
+    const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / innerHeight) * 2 * view.halfH;
+    from.set(0, view.halfH * (view.wide ? 0.28 : 0.32), 0);
+    to.set(view.halfW * (view.wide ? 0.5 : 0.3), anchorY, 0);
     points.position.lerpVectors(from, to, p);
     points.scale.setScalar(fit * (1 - 0.35 * p));
 
