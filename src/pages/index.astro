@@ -3,30 +3,51 @@ import Base from '../layouts/Base.astro';
 import { cv } from '../data/cv';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
 ---
 
 <Base title={`${cv.name} — ${cv.title}`} description={cv.intro}>
   <header class="wrap top">
-    <div>
-      <strong>{cv.name}</strong>
-      <span class="label">{cv.title}, {cv.location}</span>
+    <div class="athlete">
+      <span class="live label"><i></i>Live</span>
+      <div>
+        <strong>{cv.name}</strong>
+        <span class="label">Bib #0973 · {cv.title}<span class="loc">, {cv.location}</span></span>
+      </div>
     </div>
     <span class="label clock" id="clock">Prague --:--:--</span>
     <a href="#contact" class="label">Contact</a>
   </header>
 
   <main class="hero">
-    <ol class="lanes" aria-hidden="true">
-      {lanes.map((n) => <li><span class="label">{n}</span></li>)}
-    </ol>
+    <div id="course" aria-hidden="true">
+      <span class="label hint">Drag to orbit the course</span>
+    </div>
     <div class="wrap hero-copy">
-      <p class="label"><span class="accent">●</span> Swim · Bike · Run · Ship</p>
+      <p class="label"><span class="accent">●</span> Live tracking · Athlete #0973</p>
       <h1>Built for the<br /><span class="accent">long</span> distance.</h1>
       <p class="intro">{cv.intro}</p>
     </div>
-    <div id="playground" aria-hidden="true">
-      <span class="label hint">Grab · Throw<span class="more"> · Double-click for more</span></span>
+    <div class="wrap stats">
+      <div class="tile">
+        <p class="label">Race time</p>
+        <p class="val mono" id="elapsed">—</p>
+        <p class="label sub">Since first pro commit · Jan 2025</p>
+      </div>
+      <div class="tile">
+        <p class="label">PRs merged</p>
+        <p class="val">1,500+</p>
+        <p class="label sub">Web · Mobile · Backend</p>
+      </div>
+      <div class="tile">
+        <p class="label">Products shipped</p>
+        <p class="val">10+</p>
+        <p class="label sub">Fintech · SaaS · AI</p>
+      </div>
+      <div class="tile">
+        <p class="label">Heart rate · <span class="accent">Z4</span></p>
+        <p class="val"><span id="bpm">142</span><small>bpm</small></p>
+        <canvas id="ecg"></canvas>
+      </div>
     </div>
   </main>
 
@@ -51,9 +72,12 @@ const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
 </Base>
 
 <script>
-  import { mountBalls } from '../scripts/balls';
+  import { mountCourse } from '../scripts/course';
+  import { mountHeartRate, mountRaceTime } from '../scripts/hud';
 
-  mountBalls(document.getElementById('playground')!);
+  mountCourse(document.getElementById('course')!);
+  mountRaceTime(document.getElementById('elapsed')!);
+  mountHeartRate(document.getElementById('ecg') as HTMLCanvasElement, document.getElementById('bpm')!);
 
   const el = document.getElementById('clock')!;
   const fmt = new Intl.DateTimeFormat('en-GB', {
@@ -79,7 +103,12 @@ const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
     padding-bottom: 20px;
     z-index: 3;
   }
-  .top div {
+  .athlete {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .athlete div {
     display: flex;
     flex-direction: column;
   }
@@ -91,79 +120,139 @@ const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
     text-decoration: none;
     color: var(--fg);
   }
+  .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .live i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff3b30;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
   .clock {
     font-variant-numeric: tabular-nums;
   }
 
   .hero {
     position: relative;
-    height: 100svh;
-    min-height: 560px;
-    display: flex;
-    align-items: center;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding-top: 96px;
+    padding-bottom: 32px;
     overflow: hidden;
+    background: radial-gradient(ellipse at 70% 45%, #14171b 0%, var(--bg) 65%);
   }
-  .lanes {
+  #course {
+    position: absolute;
+    inset: 40px 0 170px 42%;
+    cursor: grab;
+  }
+  #course:active {
+    cursor: grabbing;
+  }
+  #course :global(canvas) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #course :global(.course-labels) {
     position: absolute;
     inset: 0;
-    list-style: none;
-    display: grid;
-    grid-template-rows: repeat(8, 1fr);
+    pointer-events: none;
   }
-  .lanes li {
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-right: 16px;
+  #course :global(.course-tag) {
+    font: 500 11px var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: rgba(11, 12, 14, 0.8);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--c);
+    padding: 3px 8px;
+    white-space: nowrap;
   }
-  .lanes span {
-    opacity: 0.5;
+  #course :global(.course-tag b) {
+    color: var(--c);
+    font-weight: 500;
+  }
+  .hint {
+    position: absolute;
+    right: 24px;
+    bottom: 0;
+    pointer-events: none;
   }
   .hero-copy {
     position: relative;
     z-index: 1;
     width: 100%;
+    align-self: center;
+    pointer-events: none;
     user-select: none;
   }
   .hero h1 {
-    font-size: clamp(60px, 11vw, 168px);
+    font-size: clamp(56px, 8.5vw, 132px);
     margin: 16px 0 24px;
+    max-width: 8ch;
   }
   .intro {
-    font-size: clamp(16px, 1.8vw, 20px);
+    font-size: clamp(16px, 1.6vw, 19px);
     color: var(--muted);
-    max-width: 520px;
+    max-width: 440px;
   }
 
-  #playground {
-    position: absolute;
-    inset: 0;
+  .stats {
+    position: relative;
     z-index: 2;
-    touch-action: pan-y;
-  }
-  #playground :global(canvas) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
     width: 100%;
-    height: 100%;
-    display: block;
   }
-  #playground:global(.over-ball) {
-    cursor: grab;
-  }
-  #playground:global(.grabbing) {
-    cursor: grabbing;
-  }
-  .hint {
-    position: absolute;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
+  .tile {
     border: 1px solid var(--line);
-    background: var(--bg);
-    padding: 6px 14px;
-    border-radius: 99px;
-    white-space: nowrap;
-    pointer-events: none;
+    background: rgba(17, 19, 22, 0.75);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .val {
+    font: 800 clamp(30px, 3.4vw, 44px) / 1.1 var(--display);
+    margin: 4px 0 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .val.mono {
+    font: 500 clamp(20px, 2.2vw, 28px) / 1.45 var(--mono);
+  }
+  .val small {
+    font: 500 12px var(--mono);
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .sub {
+    font-size: 10px;
+  }
+  #ecg {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    height: 45%;
   }
 
   footer {
@@ -216,24 +305,32 @@ const lanes = [1, 2, 3, 4, 5, 6, 7, 8];
     margin-top: 96px;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 900px) {
     .clock,
-    .lanes span {
+    .loc {
       display: none;
+    }
+    .val.mono {
+      font-size: 17px;
     }
     .hero {
-      align-items: flex-start;
-      padding-top: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
-  }
-  @media (hover: none) {
-    .more {
-      display: none;
+    .hero-copy {
+      order: 1;
     }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hint {
-      display: none;
+    #course {
+      position: relative;
+      inset: auto;
+      order: 2;
+      height: 88vw;
+      max-height: 520px;
+    }
+    .stats {
+      order: 3;
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>

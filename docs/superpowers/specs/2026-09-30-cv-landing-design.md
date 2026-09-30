@@ -50,3 +50,8 @@ Blog, CMS, analytics, i18n, projects gallery.
 - Landing page no longer shows CV sections (like tom-nguyen.dev): header, full-screen hero, contact footer with Download CV (PDF). CV content lives only in `/cv` → `cv.pdf`.
 - Hero WebGL scene replaced: draggable physics playground of procedurally textured balls (football, basketball, volt "140.6" Ironman ball) — gravity, throw, ball–ball collisions, double-click to add (max 12). Touch grabs only when a ball is hit, otherwise page scrolls. Paused offscreen; static under reduced motion.
 - Sporty background: 8 numbered lane lines across the hero.
+
+## Revision 2 (2026-09-30): Race-day HUD
+- Replaces the ball playground. Page styled as a live race tracker: LIVE badge + bib #0973 in header, Prague clock.
+- Hero WebGL: orbitable (drag, no zoom/pan) 3D Ironman course — swim loop (cyan), bike loop with elevation curtain (volt), 2-lap run (orange), moving athlete dot, CSS2D labels (Swim 3.8 km / Bike 180 km / Run 42.2 km / Finish BSc 2026). Auto-rotates; static under reduced motion; paused offscreen.
+- Watch-style stat tiles: live race time since Jan 2025, PRs merged 1,500+, products shipped 10+, heart-rate tile with animated ECG.
