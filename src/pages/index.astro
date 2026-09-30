@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       var reload = nav && nav.type === 'reload';
       if (reload && location.hash) history.replaceState(null, '', location.pathname + location.search);
       var toTop = function () {
-        if (!location.hash) scrollTo(0, 0);
+        if (!location.hash) scrollTo({ top: 0, behavior: 'instant' });
       };
       toTop();
       addEventListener('load', function () {
@@ -80,6 +80,31 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   const panel = document.getElementById('contact')!;
   mountParticles(document.getElementById('particles')!, hero, panel);
   mountCursor(hero);
+
+  let glide = 0;
+  const cancelGlide = () => cancelAnimationFrame(glide);
+  addEventListener('wheel', cancelGlide, { passive: true });
+  addEventListener('touchstart', cancelGlide, { passive: true });
+  document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((link) =>
+    link.addEventListener('click', (e) => {
+      const target = document.querySelector(link.hash);
+      if (!target) return;
+      e.preventDefault();
+      const start = scrollY;
+      const end = target.getBoundingClientRect().top + scrollY;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return scrollTo({ top: end, behavior: 'instant' });
+      const duration = Math.min(1600, Math.max(800, Math.abs(end - start) * 0.9));
+      const t0 = performance.now();
+      cancelGlide();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - t0) / duration);
+        const k = t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+        scrollTo({ top: start + (end - start) * k, behavior: 'instant' });
+        if (t < 1) glide = requestAnimationFrame(step);
+      };
+      glide = requestAnimationFrame(step);
+    }),
+  );
 
   new IntersectionObserver(([e]) => e.isIntersecting && panel.classList.add('in'), { threshold: 0.35 }).observe(panel);
 
