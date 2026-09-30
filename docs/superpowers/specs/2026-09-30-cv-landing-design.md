@@ -55,3 +55,8 @@ Blog, CMS, analytics, i18n, projects gallery.
 - Replaces the ball playground. Page styled as a live race tracker: LIVE badge + bib #0973 in header, Prague clock.
 - Hero WebGL: orbitable (drag, no zoom/pan) 3D Ironman course — swim loop (cyan), bike loop with elevation curtain (volt), 2-lap run (orange), moving athlete dot, CSS2D labels (Swim 3.8 km / Bike 180 km / Run 42.2 km / Finish BSc 2026). Auto-rotates; static under reduced motion; paused offscreen.
 - Watch-style stat tiles: live race time since Jan 2025, PRs merged 1,500+, products shipped 10+, heart-rate tile with animated ECG.
+
+## Revision 3 (2026-09-30): scroll-driven race
+- 800vh scroll track with a sticky stage: intro → 3·2·1·GO countdown → chase camera follows the athlete through Swim / Bike / Run as you scroll (route lights up behind) → camera pulls out at the finish with a results board → contact.
+- Live HUD bound to scroll: distance (0–226 km), elevation, speed and heart rate driven by scroll velocity (stop scrolling = athlete stops, HR drops); per-leg progress bar.
+- One short story card per leg (studies / Hostivio & Pultio / Yolk). Mouse drag looks around; touch keeps native scrolling.
