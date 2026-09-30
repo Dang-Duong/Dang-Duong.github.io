@@ -8,7 +8,8 @@ const GLYPHS = [
 ];
 const HOLD_MS = 4200;
 
-const COLORS = ['#3ad7ff', '#d4ff3a', '#ff6a3d', '#ffc83a', '#3ad7ff'];
+const INK = '#141414';
+const ACCENT = '#e63312';
 const SIZE = 3.4;
 
 function sampleGlyph(glyph: string, fallback: string, n: number) {
@@ -65,7 +66,8 @@ const vertexShader = /* glsl */ `
   uniform float uMotion;
   uniform vec3 uMouse;
   uniform float uForce;
-  uniform vec3 uColors[5];
+  uniform vec3 uInk;
+  uniform vec3 uAccent;
   varying vec3 vColor;
   varying float vAlpha;
 
@@ -97,10 +99,8 @@ const vertexShader = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * (0.5 + seed) / -mv.z;
 
-    int a = int(i);
-    int b = int(min(i + 1.0, 4.0));
-    vColor = mix(uColors[a], uColors[b], t);
-    vAlpha = 0.45 + 0.55 * seed;
+    vColor = abs(seed - 0.5) < 0.025 ? uAccent : uInk;
+    vAlpha = 0.55 + 0.45 * seed;
   }
 `;
 
@@ -141,11 +141,12 @@ export function mountParticles(host: HTMLElement) {
   const uniforms = {
     uMorph: { value: 0 },
     uTime: { value: 0 },
-    uSize: { value: 26 * dpr },
+    uSize: { value: 22 * dpr },
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
-    uColors: { value: COLORS.map((c) => new THREE.Color(c)) },
+    uInk: { value: new THREE.Color(INK) },
+    uAccent: { value: new THREE.Color(ACCENT) },
   };
   const points = new THREE.Points(
     geo,
@@ -155,7 +156,6 @@ export function mountParticles(host: HTMLElement) {
       fragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     }),
   );
   points.frustumCulled = false;
@@ -166,7 +166,7 @@ export function mountParticles(host: HTMLElement) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.z = 6.5 * Math.max(1, 0.9 / camera.aspect);
+    camera.position.z = 5.2 * Math.max(1, 0.9 / camera.aspect);
     camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(host);

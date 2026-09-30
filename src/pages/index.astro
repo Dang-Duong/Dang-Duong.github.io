@@ -24,29 +24,40 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       });
     })();
   </script>
+
   <header class="wrap top">
-    <div class="athlete">
-      <span class="live label"><i></i>Live</span>
-      <span class="label">Bib #0973 · {cv.title}<span class="loc">, {cv.location}</span></span>
-    </div>
+    <span class="label"><i class="dot"></i>Live · Bib #0973</span>
     <span class="label clock" id="clock">Prague --:--:--</span>
     <a href="#contact" class="label">Contact</a>
   </header>
 
   <main class="hero">
-    <div id="particles" aria-hidden="true">
-      <span class="label hint">Move through the particles · click to switch</span>
+    <p class="label kicker">Swim <span>·</span> Bike <span>·</span> Run <span>·</span> Ship</p>
+    <div id="particles" aria-hidden="true"></div>
+    <h1>Nguyen Dang <span class="accent">Duong</span></h1>
+    <div class="wrap meta">
+      <p class="lede">
+        Software engineer in Prague — AI, web &amp; mobile.<br />
+        <em>Training for my first Ironman.</em>
+      </p>
+      <nav class="quick">
+        <a href={`mailto:${cv.email}`}>Email</a>
+        {
+          cv.links.map((l) => (
+            <a href={l.href} target="_blank" rel="noopener">
+              {l.label} ↗
+            </a>
+          ))
+        }
+        <a href={`${base}cv.pdf`} target="_blank" class="cta">CV ↓</a>
+      </nav>
     </div>
-    <div class="wrap intro">
-      <p class="label"><span class="accent">●</span> Swim · Bike · Run · Ship</p>
-      <h1>Nguyen Dang<br /><span class="accent">Duong</span></h1>
-      <p class="lede">Software engineer in Prague. AI, web &amp; mobile. Training for my first Ironman.</p>
-    </div>
+    <span class="label hint">Hover to scatter · click to switch</span>
   </main>
 
   <footer class="wrap" id="contact">
-    <p class="label"><span class="accent">●</span> Race complete · Journey ongoing</p>
-    <h2>There is no<br /><span class="accent">finish line.</span></h2>
+    <p class="label">Race complete · Journey ongoing</p>
+    <h2>There is no <em class="accent">finish line.</em></h2>
     <p class="creed">Every race ends. Getting better never does — in code, in sport, in life.</p>
     <a class="email" href={`mailto:${cv.email}`}>{cv.email}</a>
     <ul class="links">
@@ -91,33 +102,24 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    padding: 20px max(16px, calc((100vw - 1100px) / 2 + 16px));
+    padding: 18px max(16px, calc((100vw - 1100px) / 2 + 16px));
     z-index: 10;
-    background: linear-gradient(var(--bg) 30%, transparent);
+    background: linear-gradient(var(--bg) 40%, transparent);
   }
-  .athlete {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  .top .label {
+    color: var(--fg);
   }
   .top a {
     text-decoration: none;
-    color: var(--fg);
   }
-  .live {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--bg);
-    background: var(--accent);
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
-  .live i {
+  .dot {
+    display: inline-block;
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #ff3b30;
+    background: var(--accent);
+    margin-right: 8px;
+    vertical-align: 1px;
     animation: pulse 1.2s ease-in-out infinite;
   }
   @keyframes pulse {
@@ -131,53 +133,107 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   .hero {
     position: relative;
-    height: 100svh;
-    min-height: 560px;
+    min-height: 100svh;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    padding: 76px 0 28px;
     overflow: hidden;
-    background: radial-gradient(ellipse at 65% 50%, #14171b 0%, var(--bg) 70%);
+  }
+  .kicker span {
+    color: var(--accent);
+    margin: 0 6px;
   }
   #particles {
-    position: absolute;
-    inset: 0 0 0 38%;
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 300px;
     cursor: pointer;
   }
   #particles :global(canvas) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    display: block;
+  }
+  h1 {
+    font-size: clamp(52px, 10.5vw, 176px);
+    text-align: center;
+    margin-top: -0.35em;
+    position: relative;
+    pointer-events: none;
+    padding: 0 16px;
+  }
+  .meta {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 24px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--fg);
+  }
+  .lede {
+    font-size: clamp(16px, 1.5vw, 19px);
+    line-height: 1.45;
+  }
+  .lede em,
+  footer em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15em;
+    font-weight: 400;
+  }
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    align-items: center;
+    font: 500 12px var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .quick a {
+    text-decoration: none;
+  }
+  .quick a:not(.cta):hover {
+    color: var(--accent);
+  }
+  .cta {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 99px;
+    text-decoration: none;
+    transition: transform 0.2s;
+  }
+  .quick .cta {
+    padding: 8px 16px;
+  }
+  .cta:hover {
+    transform: translateY(-2px);
   }
   .hint {
     position: absolute;
     right: 16px;
-    bottom: 16px;
-    opacity: 0.7;
+    top: 50%;
+    writing-mode: vertical-rl;
     pointer-events: none;
-  }
-  .intro {
-    position: relative;
-    width: 100%;
-    pointer-events: none;
-  }
-  .intro h1 {
-    font-size: clamp(56px, 9vw, 140px);
-    margin: 16px 0 24px;
-    max-width: 8ch;
-  }
-  .lede {
-    font-size: clamp(16px, 1.6vw, 19px);
-    color: var(--muted);
-    max-width: 440px;
   }
 
   footer {
     padding-top: 120px;
     padding-bottom: 40px;
+    border-top: 1px solid var(--line);
   }
   footer h2 {
     font-size: clamp(48px, 8vw, 120px);
     margin: 16px 0 16px;
+  }
+  footer h2 em {
+    text-transform: none;
+    font-size: 1.05em;
   }
   .creed {
     font-size: clamp(16px, 1.6vw, 20px);
@@ -210,17 +266,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     border-color: var(--accent);
   }
   .links .cta {
-    background: var(--accent);
-    color: var(--bg);
     font: 800 20px var(--display);
     text-transform: uppercase;
     padding: 12px 24px;
-    border-radius: 99px;
     border: 0;
-    transition: transform 0.2s;
-  }
-  .links .cta:hover {
-    transform: translateY(-2px);
   }
   .copy {
     margin-top: 96px;
@@ -228,18 +277,16 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
   @media (max-width: 900px) {
     .clock,
-    .loc,
     .hint {
       display: none;
     }
-    .hero {
-      flex-direction: column;
-      justify-content: flex-end;
-      padding-bottom: 40px;
+    h1 {
+      font-size: clamp(44px, 15vw, 88px);
+      line-height: 0.9;
     }
-    #particles {
-      inset: 64px 0 auto 0;
-      height: 52svh;
+    .meta {
+      flex-direction: column;
+      align-items: start;
     }
   }
 </style>

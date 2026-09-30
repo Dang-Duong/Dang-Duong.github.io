@@ -1,10 +1,11 @@
 :root {
-  --bg: #0b0c0e;
-  --fg: #f2f2ee;
-  --muted: #8b8d93;
-  --line: #23252a;
-  --accent: #d4ff3a;
+  --bg: #f3f1ec;
+  --fg: #111111;
+  --muted: #6b6862;
+  --line: #d9d5cc;
+  --accent: #e63312;
   --display: 'Barlow Condensed', sans-serif;
+  --serif: 'Instrument Serif', serif;
   --body: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
 }
@@ -29,7 +30,7 @@ body {
 
 ::selection {
   background: var(--accent);
-  color: var(--bg);
+  color: #fff;
 }
 
 a {
