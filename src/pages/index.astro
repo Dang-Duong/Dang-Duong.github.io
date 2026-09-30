@@ -4,9 +4,45 @@ import { cv } from '../data/cv';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const stories = [
-  { leg: 'Swim', km: '3.8 km', title: 'Learning to breathe', text: '2023–24 · Informatics at VŠE, then Software Development at Unicorn University.' },
-  { leg: 'Bike', km: '180 km', title: 'Building speed', text: '2025 · Founding engineer at Hostivio & Pultio — AI ID scanning, an iOS app, Stripe payouts.' },
-  { leg: 'Run', km: '42.2 km', title: 'Going the distance', text: '2025–26 · Yolk Studio — 1,500+ PRs across fintech, AI and mobile products.' },
+  {
+    leg: 'Swim',
+    km: '3.8 km',
+    title: 'Learning to breathe',
+    text: '2023–24 · Informatics at VŠE, then Software Development at Unicorn University.',
+    stats: [
+      ['2026', 'BSc graduation'],
+      ['3', 'Languages spoken'],
+      ['2', 'Universities'],
+    ],
+  },
+  {
+    leg: 'Bike',
+    km: '180 km',
+    title: 'Building speed',
+    text: '2025 · Founding engineer at Hostivio & Pultio — AI ID scanning, an iOS app, Stripe payouts.',
+    stats: [
+      ['350+', 'PRs merged'],
+      ['15', 'ID-scan languages'],
+      ['v1.7', 'iOS app shipped'],
+    ],
+  },
+  {
+    leg: 'Run',
+    km: '42.2 km',
+    title: 'Going the distance',
+    text: '2025–26 · Yolk Studio — fintech, AI and mobile products for clients.',
+    stats: [
+      ['1,100+', 'PRs merged'],
+      ['396', 'PRs in 3 months · fintech'],
+      ['~1.2k', 'Test suite grown to'],
+    ],
+  },
+];
+const results = [
+  ['PRs merged', '1,582', 'Web · Mobile · Backend'],
+  ['Products shipped', '10+', 'Fintech · SaaS · AI'],
+  ['AI features in prod', '2', 'Doc AI · ID scanning'],
+  ['Test suite grown to', '~1.2k', 'Vitest · Playwright'],
 ];
 ---
 
@@ -43,8 +79,8 @@ const stories = [
         </div>
         <dl class="metrics">
           <div><dt class="label">Distance</dt><dd><span id="km">0.0</span><small>/ 226 km</small></dd></div>
-          <div><dt class="label">Speed</dt><dd><span id="speed">0.0</span><small>km/h</small></dd></div>
-          <div><dt class="label">Elevation</dt><dd><span id="elev">0</span><small>m</small></dd></div>
+          <div><dt class="label">PRs merged</dt><dd><span id="prs">0</span><small>/ 1,582</small></dd></div>
+          <div><dt class="label">Products shipped</dt><dd><span id="products">0</span></dd></div>
           <div class="hr"><dt class="label">Heart rate</dt><dd><span id="bpm">72</span><small>bpm</small></dd><canvas id="ecg"></canvas></div>
         </dl>
         <div class="bar">
@@ -63,6 +99,14 @@ const stories = [
               </p>
               <h2>{s.title}</h2>
               <p>{s.text}</p>
+              <dl class="splits">
+                {s.stats.map(([v, l]) => (
+                  <div>
+                    <dd>{v}</dd>
+                    <dt class="label">{l}</dt>
+                  </div>
+                ))}
+              </dl>
             </article>
           ))
         }
@@ -77,16 +121,15 @@ const stories = [
             <p class="val mono" id="elapsed">—</p>
             <p class="label sub">Since first pro commit</p>
           </div>
-          <div class="tile">
-            <p class="label">PRs merged</p>
-            <p class="val">1,500+</p>
-            <p class="label sub">Web · Mobile · Backend</p>
-          </div>
-          <div class="tile">
-            <p class="label">Products shipped</p>
-            <p class="val">10+</p>
-            <p class="label sub">Fintech · SaaS · AI</p>
-          </div>
+          {
+            results.map(([label, val, sub]) => (
+              <div class="tile">
+                <p class="label">{label}</p>
+                <p class="val">{val}</p>
+                <p class="label sub">{sub}</p>
+              </div>
+            ))
+          }
           <div class="tile">
             <p class="label">Next race</p>
             <p class="val accent">Your team?</p>
@@ -123,6 +166,9 @@ const stories = [
   import { mountRace, LEGS, START } from '../scripts/race';
   import { mountHeartRate, mountRaceTime } from '../scripts/hud';
 
+  history.scrollRestoration = 'manual';
+  if (!location.hash) scrollTo(0, 0);
+
   const $ = (id: string) => document.getElementById(id)!;
   const stage = $('stage');
   const stories = [...document.querySelectorAll<HTMLElement>('.story')];
@@ -143,8 +189,11 @@ const stories = [
     $('leg-name').textContent = LEGS[leg].name;
     $('leg-name').style.color = LEGS[leg].color;
     $('km').textContent = s.km.toFixed(1);
-    $('speed').textContent = s.speed.toFixed(1);
-    $('elev').textContent = String(Math.round(s.elevation));
+    const stage2 = s.leg < 1 ? 0 : s.leg === 1 ? s.legFrac : 1;
+    const stage3 = s.leg < 2 ? 0 : s.leg === 2 ? s.legFrac : 1;
+    $('prs').textContent = Math.round(355 * stage2 + 1227 * stage3).toLocaleString('en-US');
+    const products = Math.round(2 * stage2 + 8 * stage3);
+    $('products').textContent = s.leg >= LEGS.length ? '10+' : String(products);
     $('bpm').textContent = String(Math.round(s.bpm));
     LEGS.forEach((_, j) => {
       const f = j < s.leg ? 1 : j === s.leg ? s.legFrac : 0;
@@ -415,8 +464,24 @@ const stories = [
     font-size: clamp(32px, 4vw, 48px);
     margin: 8px 0 10px;
   }
-  .story p:last-child {
+  .story > p:not(.label) {
     color: var(--muted);
+  }
+  .splits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .splits dd {
+    font: 800 26px / 1 var(--display);
+    color: var(--accent);
+  }
+  .splits dt {
+    font-size: 10px;
+    margin-top: 4px;
   }
 
   .results {
@@ -437,7 +502,7 @@ const stories = [
   }
   .tiles {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
   .tile {
@@ -559,6 +624,13 @@ const stories = [
     }
     .tiles {
       grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .tile {
+      padding: 10px 12px;
+    }
+    .results h2 {
+      margin: 8px 0 14px;
     }
   }
 </style>
