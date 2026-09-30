@@ -8,9 +8,11 @@ test('never names target employer or unverified claims', () => {
   for (const banned of ['ftmo', 'android', 'play store']) assert.ok(!text.includes(banned), banned);
 });
 test('contact email', () => assert.equal(cv.email, 'duongd973@gmail.com'));
-test('two experience entries with bullets', () => {
-  assert.equal(cv.experience.length, 2);
-  for (const e of cv.experience) assert.ok(e.bullets.length >= 3 && e.bullets.length <= 4, e.company);
+test('Yolk is the only role, with a solid set of bullets', () => {
+  assert.equal(cv.experience.length, 1);
+  assert.equal(cv.experience[0].company, 'Yolk Studio');
+  assert.ok(cv.experience[0].bullets.length >= 5 && cv.experience[0].bullets.length <= 7);
+  assert.ok(!/hostivio|pultio/.test(text));
 });
 test('ironman in interests', () => assert.match(cv.interests, /ironman/i));
 test('experience bullets stay short and metric-free', () => {
