@@ -24,7 +24,7 @@ Personal landing page + refreshed CV for Nguyen Dang Duong, aimed at mid-level R
 Three interlocking glossy rings (swim / bike / run → Ironman nod), physical material with iridescence + environment lighting for a Blender-render look. Drag to rotate (pointer), slow idle spin, subtle scroll parallax. Respects `prefers-reduced-motion` (static frame) and falls back to nothing if WebGL is unavailable. Caps devicePixelRatio at 2.
 
 ## Visual direction
-Dark background, off-white text, one accent (warm orange) — high contrast, serif/sans pairing (Instrument Serif for display, Inter for body via Google Fonts). Light-mode via `prefers-color-scheme`.
+Sporty, race-kit feel: near-black background, off-white text, one electric volt/lime accent (#D4FF3A-ish). Bold condensed display type (Barlow Condensed 700–800, uppercase for headings) + Inter for body, JetBrains Mono for small data labels (dates, live clock styled like a race timer). Subtle race motifs: section labels as numbered "splits" (01 / SWIM-style counters), thin track-line dividers. Rings in the hero use the volt accent + iridescent chrome. Dark only (sporty identity is the point); light-mode skipped.
 
 ## CV content
 - Header: Nguyen Dang Duong — Software Engineer · Prague, CZ · BSc Software Development, graduating 2026.
@@ -36,9 +36,9 @@ Dark background, off-white text, one accent (warm orange) — high contrast, ser
 - Interests: "Sport-obsessed — currently training for my first Ironman."
 - Languages: Czech (native), English (fluent), Vietnamese (intermediate).
 
-## Assumptions (unconfirmed — override if wrong)
+## Confirmed
 - Contact email: duongd973@gmail.com.
-- Dark theme, Ironman rings concept.
+- Dark sporty theme, Ironman rings concept.
 
 ## Verification
 `pnpm build` passes; Playwright screenshots of `/` (desktop + 390px mobile) and `/cv`; PDF opens and fits 1–2 A4 pages; deployed Pages URL returns 200.
