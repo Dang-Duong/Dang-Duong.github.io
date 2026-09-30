@@ -224,7 +224,7 @@ export async function mountParticles(
   host: HTMLElement,
   hero: HTMLElement,
   panel: HTMLElement,
-  onProgress: (p: number) => void,
+  onProgress: (p: number, panelTop: number) => void,
 ) {
   await document.fonts.load('800 100px "Barlow Condensed"').catch(() => {});
   let renderer: THREE.WebGLRenderer;
@@ -235,7 +235,7 @@ export async function mountParticles(
     return;
   }
   const mobile = matchMedia('(max-width: 900px)').matches;
-  const dpr = Math.min(devicePixelRatio, mobile ? 1.5 : 2);
+  const dpr = Math.min(devicePixelRatio, mobile ? 1.25 : 2);
   renderer.setPixelRatio(dpr);
   host.prepend(renderer.domElement);
 
@@ -243,7 +243,7 @@ export async function mountParticles(
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
   camera.position.z = 6;
 
-  const n = mobile ? 9000 : 30000;
+  const n = mobile ? 7000 : 30000;
   const shapes = SHAPES.map(([draw, width, W, H]) => sample(draw, n, width, W, H));
   const geo = new THREE.BufferGeometry();
   const aFrom = new THREE.BufferAttribute(shapes[0].slice(), 3);
@@ -306,6 +306,11 @@ export async function mountParticles(
   new ResizeObserver(resize).observe(host);
   resize();
 
+  let panelOffset = 0;
+  const measure = () => (panelOffset = panel.getBoundingClientRect().top + scrollY);
+  new ResizeObserver(measure).observe(document.body);
+  measure();
+
   const pointer = new THREE.Vector2();
   let pointerIn = false;
   let pointerSpeed = 0;
@@ -353,9 +358,9 @@ export async function mountParticles(
     }
 
     const H = host.clientHeight;
-    const panelTop = panel.getBoundingClientRect().top;
+    const panelTop = panelOffset - scrollY;
     const raw = clamp01(1 - panelTop / innerHeight);
-    onProgress(raw);
+    onProgress(raw, panelTop);
     if (!themeReady) readTheme();
     uniforms.uEdge.value = Math.max(0, H - panelTop) * dpr;
     uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));

@@ -83,8 +83,12 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   const splitB = document.querySelector<HTMLElement>('.split.b')!;
   const fades = [...document.querySelectorAll<HTMLElement>('.meta, .kicker')];
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const header = document.querySelector<HTMLElement>('.top')!;
+  let headerMid = header.offsetHeight / 2;
+  new ResizeObserver(() => (headerMid = header.offsetHeight / 2)).observe(header);
   let shown = -1;
-  const onProgress = (p: number) => {
+  const onProgress = (p: number, panelTop: number) => {
+    header.classList.toggle('on-panel', panelTop < headerMid);
     if (Math.abs(p - shown) < 0.001) return;
     shown = p;
     if (!still) {
@@ -180,11 +184,14 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     gap: 16px;
     padding: 18px max(16px, calc((100vw - 1100px) / 2 + 16px));
     z-index: 10;
-    color: #fff;
-    mix-blend-mode: difference;
+    color: var(--fg);
+    transition: color 0.25s;
+  }
+  .top.on-panel {
+    color: var(--bg);
   }
   .top .label {
-    color: #fff;
+    color: inherit;
   }
   .top a {
     text-decoration: none;
@@ -194,7 +201,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #fff;
+    background: currentColor;
     margin-right: 8px;
     vertical-align: 1px;
     animation: pulse 1.2s ease-in-out infinite;
@@ -214,14 +221,14 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   .theme {
     background: none;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
     border-radius: 99px;
     padding: 4px 10px;
-    color: #fff;
+    color: inherit;
     cursor: pointer;
   }
   .theme:hover {
-    border-color: #fff;
+    border-color: currentColor;
   }
 
   .hero {
