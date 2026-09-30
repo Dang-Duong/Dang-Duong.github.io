@@ -60,3 +60,7 @@ Blog, CMS, analytics, i18n, projects gallery.
 - 800vh scroll track with a sticky stage: intro → 3·2·1·GO countdown → chase camera follows the athlete through Swim / Bike / Run as you scroll (route lights up behind) → camera pulls out at the finish with a results board → contact.
 - Live HUD bound to scroll: distance (0–226 km), elevation, speed and heart rate driven by scroll velocity (stop scrolling = athlete stops, HR drops); per-leg progress bar.
 - One short story card per leg (studies / Hostivio & Pultio / Yolk). Mouse drag looks around; touch keeps native scrolling.
+
+## Revision 4 (2026-09-30): particle athlete, minimal stats
+- 3D course replaced by ~32k GPU particles (14k on mobile) that morph with scroll: sphere → swimmer → cyclist → runner → medal (shapes sampled from emoji, text fallback), per-leg colours, swirl between shapes, cursor repulsion, scroll-speed "wind".
+- Stats reduced: HUD = leg + distance + progress bar; one line per leg; finish = 3 highlights (1,582 PRs, 10+ products, 2 AI features in production).
