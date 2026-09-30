@@ -28,14 +28,15 @@ Dark background, off-white text, one accent (warm orange) — high contrast, ser
 
 ## CV content
 - Header: Nguyen Dang Duong — Software Engineer · Prague, CZ · BSc Software Development, graduating 2026.
-- Experience: **Yolk Studio — Software Engineer, Full-time, Aug 2025 – Present**, bullets led by AI/automation (Doc AI, AI ID scanning, MCP API keys, internal automation), then fintech platform rebuild, mobile, payments, performance, quality — as agreed in chat. No unverified claims (no Android, no user counts).
+- Experience (two entries, AI/automation bullets first in each; no unverified claims — no Android, no user counts):
+  - **Yolk Studio — Software Engineer, Full-time, Aug 2025 – Present**: UK mortgage-origination platform rebuild (fintech), Gemini Doc AI, secure MCP API keys, internal automation (n8n, Slack bot, Web Store CI, React Doctor), fintech mobile (Wefund, Orbi), Newspage, quality/CI gates.
+  - **Hostivio & Pultio — Founding Engineer, Part-time, Jan 2025 – Present**: AI guest-ID scanning (vision LLM + on-device OCR), Expo iOS app with EAS/OTA/CI, Ubyport police-registration integration, Stripe Connect payouts, direct booking engine, PostHog analytics, LCP 10.7s fix; Pultio POS back office + EAN restocking.
 - Skills: AI & Automation / Frontend / Mobile / Backend / Quality groups.
 - Education: Unicorn University (BSc, graduating 2026); VŠE 2023–24 one line; Gymnázium Ostrov.
 - Interests: "Sport-obsessed — currently training for my first Ironman."
 - Languages: Czech (native), English (fluent), Vietnamese (intermediate).
 
 ## Assumptions (unconfirmed — override if wrong)
-- Hostivio/Pultio work is presented as Yolk Studio client work, not a separate employer.
 - Contact email: duongd973@gmail.com.
 - Dark theme, Ironman rings concept.
 
