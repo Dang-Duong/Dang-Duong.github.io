@@ -1,40 +1,67 @@
 import * as THREE from 'three';
-import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 
 const HOLD_MS = 4200;
 
-function sphere(n: number) {
+function text(label: string, n: number, width = 3.8) {
+  const W = 640;
+  const H = 320;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  let size = 260;
+  ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
+  size *= Math.min(1, (W * 0.9) / ctx.measureText(label).width);
+  ctx.font = `800 ${size}px "Barlow Condensed", sans-serif`;
+  ctx.fillText(label, W / 2, H / 2 + size * 0.04);
+  const data = ctx.getImageData(0, 0, W, H).data;
+  const pts: number[] = [];
+  for (let i = 0; i < W * H; i++) if (data[i * 4 + 3] > 128) pts.push(i % W, Math.floor(i / W));
   const out = new Float32Array(n * 3);
-  const golden = Math.PI * (3 - Math.sqrt(5));
+  const scale = width / W;
   for (let i = 0; i < n; i++) {
-    const y = 1 - (i / (n - 1)) * 2;
-    const r = Math.sqrt(1 - y * y);
-    const k = 1.45 + (Math.random() - 0.5) * 0.06;
-    out.set([Math.cos(golden * i) * r * k, y * k, Math.sin(golden * i) * r * k], i * 3);
+    const k = Math.floor(Math.random() * (pts.length / 2)) * 2;
+    out.set(
+      [(pts[k] + Math.random() - W / 2) * scale, -(pts[k + 1] + Math.random() - H / 2) * scale, (Math.random() - 0.5) * 0.3],
+      i * 3,
+    );
   }
   return out;
 }
 
-function wave(n: number) {
+function wheel(n: number) {
   const out = new Float32Array(n * 3);
+  const R = 1.45;
+  const spokes = 18;
   for (let i = 0; i < n; i++) {
-    const x = (Math.random() - 0.5) * 4;
-    const z = (Math.random() - 0.5) * 2.6;
-    const y = 0.35 * Math.sin(x * 1.8 + z * 1.2) + 0.2 * Math.cos(z * 2.4);
+    const r = Math.random();
+    const a = Math.random() * Math.PI * 2;
+    let x: number;
+    let y: number;
+    let z = (Math.random() - 0.5) * 0.04;
+    if (r < 0.55) {
+      const t = Math.random() * Math.PI * 2;
+      const rr = R + Math.cos(t) * 0.07;
+      x = Math.cos(a) * rr;
+      y = Math.sin(a) * rr;
+      z = Math.sin(t) * 0.07;
+    } else if (r < 0.92) {
+      const s = (Math.floor(Math.random() * spokes) / spokes) * Math.PI * 2;
+      const d = 0.12 + Math.random() * (R - 0.15);
+      x = Math.cos(s) * d;
+      y = Math.sin(s) * d;
+      z = (1 - d / R) * 0.18 * (Math.random() < 0.5 ? 1 : -1);
+    } else {
+      const d = Math.sqrt(Math.random()) * 0.14;
+      x = Math.cos(a) * d;
+      y = Math.sin(a) * d;
+      z = (Math.random() - 0.5) * 0.3;
+    }
     out.set([x, y, z], i * 3);
   }
-  return out;
-}
-
-function surface(geometry: THREE.BufferGeometry, n: number) {
-  const sampler = new MeshSurfaceSampler(new THREE.Mesh(geometry)).build();
-  const out = new Float32Array(n * 3);
-  const p = new THREE.Vector3();
-  for (let i = 0; i < n; i++) {
-    sampler.sample(p);
-    out.set([p.x, p.y, p.z], i * 3);
-  }
-  geometry.dispose();
   return out;
 }
 
@@ -52,7 +79,6 @@ const vertexShader = /* glsl */ `
   uniform vec3 uMouse;
   uniform float uForce;
   uniform vec3 uInk;
-  uniform vec3 uAccent;
   varying vec3 vColor;
   varying float vAlpha;
 
@@ -84,8 +110,8 @@ const vertexShader = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * (0.5 + seed) / -mv.z;
 
-    vColor = abs(seed - 0.5) < 0.04 ? uAccent : uInk;
-    vAlpha = (0.45 + 0.45 * seed) * smoothstep(-9.0, -4.0, mv.z);
+    vColor = uInk;
+    vAlpha = (0.7 + 0.3 * seed) * smoothstep(-12.0, -4.0, mv.z);
   }
 `;
 
@@ -99,7 +125,11 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
-export function mountParticles(host: HTMLElement) {
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const ease = (t: number) => t * t * (3 - 2 * t);
+
+export async function mountParticles(host: HTMLElement, hero: HTMLElement, panel: HTMLElement) {
+  await document.fonts.load('800 100px "Barlow Condensed"').catch(() => {});
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
@@ -113,14 +143,10 @@ export function mountParticles(host: HTMLElement) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
+  camera.position.z = 6;
 
   const n = matchMedia('(max-width: 900px)').matches ? 14000 : 30000;
-  const shapes = [
-    sphere(n),
-    surface(new THREE.TorusKnotGeometry(0.95, 0.3, 220, 32), n),
-    wave(n),
-    surface(new THREE.TorusGeometry(1.3, 0.12, 24, 160), n),
-  ];
+  const shapes = [text('NDD', n, 4.2), wheel(n), text('</>', n, 3.9), text('140.6', n, 4.6)];
   const count = shapes.length;
   shapes.push(shapes[0]);
   const geo = new THREE.BufferGeometry();
@@ -136,37 +162,26 @@ export function mountParticles(host: HTMLElement) {
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
-    uInk: { value: new THREE.Color() },
-    uAccent: { value: new THREE.Color() },
+    uInk: { value: new THREE.Color('#ffffff') },
   };
-  const ink = new THREE.Color();
-  const accent = new THREE.Color();
-  const readTheme = () => {
-    const css = getComputedStyle(document.documentElement);
-    ink.set(css.getPropertyValue('--fg').trim());
-    accent.set(css.getPropertyValue('--accent').trim());
-  };
-  readTheme();
-  uniforms.uInk.value.copy(ink);
-  uniforms.uAccent.value.copy(accent);
-  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
 
   const points = new THREE.Points(
     geo,
     new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader, transparent: true, depthWrite: false }),
   );
   points.frustumCulled = false;
-  points.rotation.x = 0.35;
   scene.add(points);
 
+  const view = { halfW: 1, halfH: 1, wide: true };
   const resize = () => {
     const { clientWidth: w, clientHeight: h } = host;
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.z = 6 * Math.max(1, 0.9 / camera.aspect);
     camera.updateProjectionMatrix();
+    view.halfH = camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    view.halfW = view.halfH * camera.aspect;
+    view.wide = camera.aspect > 1.1;
   };
   new ResizeObserver(resize).observe(host);
   resize();
@@ -176,19 +191,18 @@ export function mountParticles(host: HTMLElement) {
   let pointerSpeed = 0;
   const ray = new THREE.Raycaster();
   const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-  host.addEventListener(
+  addEventListener(
     'pointermove',
     (e) => {
-      const rect = host.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      const x = (e.clientX / innerWidth) * 2 - 1;
+      const y = -(e.clientY / innerHeight) * 2 + 1;
       pointerSpeed = Math.min(1, pointerSpeed + Math.hypot(x - pointer.x, y - pointer.y) * 4);
       pointer.set(x, y);
       pointerIn = true;
     },
     { passive: true },
   );
-  host.addEventListener('pointerleave', () => (pointerIn = false));
+  document.documentElement.addEventListener('pointerleave', () => (pointerIn = false));
 
   let target = 0;
   let nextAt = performance.now() + HOLD_MS;
@@ -196,15 +210,13 @@ export function mountParticles(host: HTMLElement) {
     target += 1;
     nextAt = performance.now() + HOLD_MS;
   };
-  host.addEventListener('click', advance);
+  hero.addEventListener('click', advance);
 
+  const from = new THREE.Vector3();
+  const to = new THREE.Vector3();
   let spin = 0;
   let last = performance.now();
   const frame = (now: number) => {
-    if (!visible) {
-      running = false;
-      return;
-    }
     const dt = Math.min((now - last) / 1000, 0.1) || 1 / 60;
     last = now;
 
@@ -220,28 +232,30 @@ export function mountParticles(host: HTMLElement) {
       spin += dt * 0.18;
     }
 
-    uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));
-    uniforms.uAccent.value.lerp(accent, Math.min(1, dt * 5));
+    const p = ease(clamp01(1 - panel.getBoundingClientRect().top / innerHeight));
+    const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
+    if (view.wide) {
+      from.set(0, view.halfH * 0.28, 0);
+      to.set(view.halfW * 0.5, -view.halfH * 0.05, 0);
+    } else {
+      from.set(0, view.halfH * 0.32, 0);
+      to.set(view.halfW * 0.35, view.halfH * 0.62, 0);
+    }
+    points.position.lerpVectors(from, to, p);
+    points.scale.setScalar(fit * (1 - 0.35 * p));
+
     pointerSpeed *= 1 - Math.min(1, dt * 3);
     ray.setFromCamera(pointer, camera);
     ray.ray.intersectPlane(plane, uniforms.uMouse.value);
     const force = pointerIn && !reduced ? 0.35 + pointerSpeed * 0.9 : 0;
     uniforms.uForce.value += (force - uniforms.uForce.value) * Math.min(1, dt * 6);
 
-    points.rotation.y = spin + (pointerIn ? pointer.x * 0.3 : 0);
-    points.rotation.x += (0.35 - (pointerIn ? pointer.y * 0.2 : 0) - points.rotation.x) * Math.min(1, dt * 3);
+    const sway = Math.sin(spin * 2) * 0.4;
+    points.rotation.y += (sway + (pointerIn ? pointer.x * 0.3 : 0) - points.rotation.y) * Math.min(1, dt * 3);
+    points.rotation.x += ((pointerIn ? -pointer.y * 0.2 : 0) - points.rotation.x) * Math.min(1, dt * 3);
 
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   };
-
-  let visible = false;
-  let running = false;
-  new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting;
-    if (!visible || running) return;
-    running = true;
-    last = performance.now();
-    requestAnimationFrame(frame);
-  }).observe(host);
+  requestAnimationFrame(frame);
 }

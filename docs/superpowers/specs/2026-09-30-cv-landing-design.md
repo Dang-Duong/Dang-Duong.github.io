@@ -68,3 +68,8 @@ Blog, CMS, analytics, i18n, projects gallery.
 ## Revision 5 (2026-09-30): simple one-screen page
 - Scroll-driven race removed. Hero = name + one-line bio beside a particle render that auto-morphs swimmer → cyclist → runner → medal every ~4s (click to skip, cursor scatters). Contact section opens with "There is no finish line."
 - CV PDF generated with LaTeX (`resume.cls`, same as the original CV) from `cv.ts`; short, metric-free bullets.
+
+## Revision 6 (2026-09-30): personal shapes + curtain scroll
+- Particles form NDD → bike wheel → </> → 140.6; fixed full-viewport canvas with mix-blend-mode: difference so they invert over the contact panel.
+- Contact is an inverted ink panel (rounded top) that slides over the sticky hero; name splits apart horizontally with scroll; headline lines rise from a mask; header uses difference blend.
+- Light/dark: system default + persisted toggle with circular view-transition reveal.

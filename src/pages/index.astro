@@ -34,10 +34,12 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     </nav>
   </header>
 
-  <main class="hero">
+  <div id="particles" aria-hidden="true"></div>
+
+  <main class="hero" id="hero">
     <p class="label kicker">Swim <span>·</span> Bike <span>·</span> Run <span>·</span> Ship</p>
-    <div id="particles" aria-hidden="true"></div>
-    <h1>Nguyen Dang <span class="accent">Duong</span></h1>
+    <div class="stage"></div>
+    <h1><span class="split a">Nguyen Dang</span> <span class="split b accent">Duong</span></h1>
     <div class="wrap meta">
       <p class="lede">
         Software engineer in Prague — AI, web &amp; mobile.<br />
@@ -47,9 +49,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     <span class="label hint">Hover to scatter · click to morph</span>
   </main>
 
-  <footer class="wrap" id="contact">
+  <footer class="panel" id="contact">
+    <div class="wrap">
     <p class="label">Race complete · Journey ongoing</p>
-    <h2>There is no <em class="accent">finish line.</em></h2>
+    <h2><span class="line"><span>There is no</span></span><span class="line"><em>finish line.</em></span></h2>
     <p class="creed">Every race ends. Getting better never does — in code, in sport, in life.</p>
     <a class="email" href={`mailto:${cv.email}`}>{cv.email}</a>
     <ul class="links">
@@ -65,13 +68,25 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <li><a href={`${base}cv.pdf`} target="_blank" class="cta">Download CV (PDF)</a></li>
     </ul>
     <p class="label copy">© {new Date().getFullYear()} {cv.name}</p>
+    </div>
   </footer>
 </Base>
 
 <script>
   import { mountParticles } from '../scripts/particles';
 
-  mountParticles(document.getElementById('particles')!);
+  const hero = document.getElementById('hero')!;
+  const panel = document.getElementById('contact')!;
+  mountParticles(document.getElementById('particles')!, hero, panel);
+
+  const onScroll = () => {
+    const p = Math.min(1, Math.max(0, 1 - panel.getBoundingClientRect().top / innerHeight));
+    document.documentElement.style.setProperty('--p', p.toFixed(4));
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  onScroll();
+  new IntersectionObserver(([e]) => e.isIntersecting && panel.classList.add('in'), { threshold: 0.35 }).observe(panel);
 
   const root = document.documentElement;
   const themeBtn = document.getElementById('theme')!;
@@ -130,10 +145,11 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     gap: 16px;
     padding: 18px max(16px, calc((100vw - 1100px) / 2 + 16px));
     z-index: 10;
-    background: linear-gradient(var(--bg) 40%, transparent);
+    color: #fff;
+    mix-blend-mode: difference;
   }
   .top .label {
-    color: var(--fg);
+    color: #fff;
   }
   .top a {
     text-decoration: none;
@@ -143,7 +159,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--accent);
+    background: #fff;
     margin-right: 8px;
     vertical-align: 1px;
     animation: pulse 1.2s ease-in-out infinite;
@@ -163,41 +179,61 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   .theme {
     background: none;
-    border: 1px solid var(--line);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 99px;
     padding: 4px 10px;
-    color: var(--fg);
+    color: #fff;
     cursor: pointer;
   }
   .theme:hover {
-    border-color: var(--accent);
+    border-color: #fff;
   }
 
   .hero {
-    position: relative;
-    min-height: 100svh;
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 560px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 76px 0 28px;
     overflow: hidden;
+    cursor: pointer;
   }
   .kicker span {
     color: var(--accent);
     margin: 0 6px;
   }
   #particles {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    min-height: 300px;
-    cursor: pointer;
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    mix-blend-mode: difference;
   }
   #particles :global(canvas) {
-    position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
+    display: block;
+  }
+  .stage {
+    flex: 1;
+    min-height: 260px;
+  }
+  .split {
+    display: inline-block;
+    transition: none;
+  }
+  .split.a {
+    transform: translateX(calc(var(--p, 0) * -22vw));
+  }
+  .split.b {
+    transform: translateX(calc(var(--p, 0) * 22vw));
+  }
+  .meta,
+  .kicker {
+    opacity: calc(1 - var(--p, 0) * 1.4);
   }
   h1 {
     font-size: clamp(52px, 10.5vw, 176px);
@@ -247,13 +283,44 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
 
   footer {
-    padding-top: 120px;
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    padding-top: 140px;
     padding-bottom: 40px;
-    border-top: 1px solid var(--line);
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 36px 36px 0 0;
+    --muted: color-mix(in srgb, var(--bg) 60%, var(--fg));
+    --line: color-mix(in srgb, var(--bg) 22%, var(--fg));
+  }
+  footer .wrap {
+    width: 100%;
   }
   footer h2 {
     font-size: clamp(48px, 8vw, 120px);
     margin: 16px 0 16px;
+  }
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+  .line > * {
+    display: inline-block;
+    transform: translateY(110%);
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  .line + .line > * {
+    transition-delay: 0.12s;
+  }
+  .in .line > * {
+    transform: none;
+  }
+  footer h2 em {
+    color: var(--accent);
   }
   footer h2 em {
     text-transform: none;
@@ -299,7 +366,20 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     margin-top: 96px;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .line > * {
+      transform: none;
+    }
+    .split.a,
+    .split.b {
+      transform: none;
+    }
+  }
+
   @media (max-width: 900px) {
+    footer {
+      padding-top: 42svh;
+    }
     .clock,
     .hint,
     .more {
