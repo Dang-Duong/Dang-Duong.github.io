@@ -42,7 +42,6 @@ export const cv = {
   ],
   education: [
     { school: 'Unicorn University, Prague', degree: "Bachelor's Degree in Software Development — graduating 2026", period: 'Sep 2024 – Present' },
-    { school: 'VŠE, Prague', degree: "Bachelor's studies, Faculty of Informatics and Statistics", period: 'Sep 2023 – Sep 2024' },
     { school: 'Gymnázium Ostrov, Ostrov nad Ohří', degree: '8-year Program, Concluded with Maturita Exam', period: 'Sep 2015 – Jun 2023' },
   ],
   projectsNote: "Curious what I've built? Let me know and I'll happily walk you through it.",
