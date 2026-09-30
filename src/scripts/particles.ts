@@ -9,7 +9,7 @@ const GLYPHS = [
 const HOLD_MS = 4200;
 
 const INK = '#141414';
-const ACCENT = '#e63312';
+const ACCENT = '#2446ff';
 const SIZE = 3.4;
 
 function sampleGlyph(glyph: string, fallback: string, n: number) {
