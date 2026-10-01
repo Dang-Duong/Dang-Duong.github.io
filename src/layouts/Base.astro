@@ -1,4 +1,6 @@
 ---
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import '../styles/global.css';
 
 interface Props {
@@ -8,7 +10,8 @@ interface Props {
 
 const { title, description } = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site).href;
-const image = new URL('/og.png', Astro.site).href;
+const ogVersion = createHash('sha1').update(readFileSync('public/og.png')).digest('hex').slice(0, 8);
+const image = new URL(`/og.png?v=${ogVersion}`, Astro.site).href;
 ---
 
 <!doctype html>
