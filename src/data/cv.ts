@@ -77,7 +77,8 @@ export const cv = {
       ],
     },
   ],
-  interests: 'Really into sport, recently started training for my first Ironman.',
+  interests:
+    'Training for my first Ironman. Used to play football, basketball and volleyball. Love video games.',
   languages: ['Czech (native)', 'English (fluent)', 'Vietnamese (intermediate)'],
 };
 
