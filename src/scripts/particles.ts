@@ -277,25 +277,20 @@ export async function mountParticles(
     uShock: { value: new THREE.Vector2(99, 99) },
     uShockT: { value: 1 },
   };
-  const ink = new THREE.Color();
-  const paper = new THREE.Color();
-  let themeReady = false;
+  let themeUntil = 0;
   const readTheme = () => {
     const css = getComputedStyle(document.documentElement);
     const fg = css.getPropertyValue('--fg').trim();
     const bg = css.getPropertyValue('--bg').trim();
-    if (!fg || !bg) return;
-    ink.set(fg);
-    paper.set(bg);
-    if (!themeReady) {
-      uniforms.uInk.value.copy(ink);
-      uniforms.uPaper.value.copy(paper);
-      themeReady = true;
-    }
+    if (!fg || !bg) return false;
+    uniforms.uInk.value.set(fg);
+    uniforms.uPaper.value.set(bg);
+    return true;
   };
-  readTheme();
-  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+  let themeReady = readTheme();
+  const followTheme = () => (themeUntil = performance.now() + 1200);
+  new MutationObserver(followTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', followTheme);
 
   const points = new THREE.Points(
     geo,
@@ -385,10 +380,8 @@ export async function mountParticles(
     const panelTop = panelOffset - scrollY;
     const raw = clamp01(1 - panelTop / innerHeight);
     onProgress(raw, panelTop);
-    if (!themeReady) readTheme();
+    if (!themeReady || now < themeUntil) themeReady = readTheme();
     uniforms.uEdge.value = Math.max(0, H - panelTop) * dpr;
-    uniforms.uInk.value.lerp(ink, Math.min(1, dt * 5));
-    uniforms.uPaper.value.lerp(paper, Math.min(1, dt * 5));
     const p = ease(raw);
     const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
     const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / H) * 2 * view.halfH;
