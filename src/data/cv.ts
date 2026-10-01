@@ -2,8 +2,7 @@ export const cv = {
   name: 'Nguyen Dang Duong',
   title: 'Software Engineer',
   location: 'Prague, CZ',
-  intro:
-    'Software engineer shipping AI-powered web & mobile products end-to-end. Finishing my BSc in Software Development in 2026. Currently training for my first Ironman.',
+  intro: 'Software engineer in Prague building AI, web and mobile products. Open to new projects.',
   email: 'duongd973@gmail.com',
   phone: '+420 720 072 937',
   links: [

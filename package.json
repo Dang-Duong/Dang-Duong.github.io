@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
-    "cv:pdf": "node --experimental-strip-types scripts/cv-pdf.mjs"
+    "cv:pdf": "node --experimental-strip-types scripts/cv-pdf.mjs",
+    "og": "node scripts/og.mjs"
   },
   "dependencies": {
     "astro": "^7.3.5",
