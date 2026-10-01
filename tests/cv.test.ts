@@ -12,7 +12,6 @@ test('Yolk is the only role, with a solid set of bullets', () => {
   assert.equal(cv.experience.length, 1);
   assert.equal(cv.experience[0].company, 'Yolk Studio');
   assert.ok(cv.experience[0].bullets.length >= 5 && cv.experience[0].bullets.length <= 7);
-  assert.ok(!/hostivio|pultio/.test(text));
 });
 test('ironman in interests', () => assert.match(cv.interests, /ironman/i));
 test('experience bullets stay short and metric-free', () => {
@@ -31,9 +30,14 @@ test('CV text has no hyphens or dashes', () => {
     e.period,
     ...cv.education.flatMap((x) => [x.school, x.degree, x.period]),
     ...cv.skills.flatMap((s) => [s.group, ...s.items]),
-    cv.projectsNote,
+    ...cv.projects.flatMap((p) => [p.name, p.role, p.text]),
     cv.interests,
     ...cv.languages,
   ];
   for (const f of fields) assert.doesNotMatch(f, /[-–—]/, f);
+});
+test('projects list Hostivio and Pultio with AI work', () => {
+  assert.deepEqual(cv.projects.map((p) => p.name), ['Hostivio', 'Pultio']);
+  assert.match(cv.projects[0].text, /AI/);
+  for (const p of cv.projects) assert.ok(p.text.length <= 110, p.text);
 });

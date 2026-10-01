@@ -41,7 +41,7 @@ ${cv.skills.map((s) => `${tex(s.group)}: & ${tex(s.items.join(', '))} \\\\`).joi
 \end{rSection}
 
 \begin{rSection}{Projects}
-${tex(cv.projectsNote)}
+${cv.projects.map((p) => entry(p.name, p.role, [p.text])).join('\n\n')}
 \end{rSection}
 
 \begin{rSection}{Interests}

@@ -36,7 +36,18 @@ export const cv = {
     { school: 'Unicorn University, Prague', degree: "Bachelor's Degree in Software Development, graduating 2026", period: 'Sep 2024 to Present' },
     { school: 'Gymnázium Ostrov, Ostrov nad Ohří', degree: 'Eight year program, concluded with Maturita exam', period: 'Sep 2015 to Jun 2023' },
   ],
-  projectsNote: 'Code samples and live demos of my work are available on request.',
+  projects: [
+    {
+      name: 'Hostivio',
+      role: 'Founding engineer',
+      text: 'Accommodation SaaS. Built AI guest ID scanning with a vision LLM, the iOS app and Stripe payouts',
+    },
+    {
+      name: 'Pultio',
+      role: 'Founding engineer',
+      text: 'Point of sale platform with AI agents for venues. Built the back office and barcode restocking',
+    },
+  ],
   interests: 'Really into sport, recently started training for my first Ironman.',
   languages: ['Czech (native)', 'English (fluent)', 'Vietnamese (intermediate)'],
 };
