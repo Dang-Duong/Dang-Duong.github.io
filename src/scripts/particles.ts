@@ -181,6 +181,8 @@ const vertexShader = /* glsl */ `
   uniform float uMotion;
   uniform vec3 uMouse;
   uniform float uForce;
+  uniform vec2 uShock;
+  uniform float uShockT;
   varying float vAlpha;
 
   void main() {
@@ -195,6 +197,13 @@ const vertexShader = /* glsl */ `
     vec2 d = world.xy - uMouse.xy;
     float dist = length(d);
     world.xy += (d / max(dist, 0.001)) * uForce * exp(-dist * dist * 3.0) * (0.5 + seed * 0.6);
+
+    vec2 sd = world.xy - uShock;
+    float sr = length(sd);
+    float front = uShockT * 5.0;
+    float wave = exp(-pow((sr - front) * 2.2, 2.0)) * (1.0 - uShockT);
+    world.xy += (sd / max(sr, 0.001)) * wave * (0.2 + seed * 0.3);
+    world.z += wave * (seed - 0.5) * 0.7;
 
     vec4 mv = viewMatrix * world;
     gl_Position = projectionMatrix * mv;
@@ -265,6 +274,8 @@ export async function mountParticles(
     uInk: { value: new THREE.Color() },
     uPaper: { value: new THREE.Color() },
     uEdge: { value: 0 },
+    uShock: { value: new THREE.Vector2(99, 99) },
+    uShockT: { value: 1 },
   };
   const ink = new THREE.Color();
   const paper = new THREE.Color();
@@ -343,6 +354,16 @@ export async function mountParticles(
     onShape(index, shapes.length);
   };
   hero.addEventListener('click', advance);
+  const shockPoint = new THREE.Vector3();
+  addEventListener('pointerdown', (e) => {
+    if (reduced) return;
+    const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / host.clientHeight) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    if (ray.ray.intersectPlane(plane, shockPoint)) {
+      uniforms.uShock.value.set(shockPoint.x, shockPoint.y);
+      uniforms.uShockT.value = 0;
+    }
+  });
 
   const from = new THREE.Vector3();
   const to = new THREE.Vector3();
@@ -354,6 +375,7 @@ export async function mountParticles(
 
     if (!reduced && now > nextAt) advance();
     uniforms.uT.value = Math.min(1, uniforms.uT.value + dt / 1.4);
+    uniforms.uShockT.value = Math.min(1, uniforms.uShockT.value + dt / 1.1);
     if (!reduced) {
       uniforms.uTime.value = now / 1000;
       spin += dt * 0.18;

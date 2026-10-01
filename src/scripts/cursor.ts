@@ -2,6 +2,7 @@ const STRIDE = 30;
 const SPREAD = 8;
 const PULL = 0.22;
 const MAX_PULL = 10;
+const BURST = 10;
 const NS = 'http://www.w3.org/2000/svg';
 
 function footprint(className: string) {
@@ -80,8 +81,30 @@ export function mountCursor() {
     root.classList.remove('cursor-on', 'cursor-planted');
     target = null;
   });
-  addEventListener('pointerdown', () => {
-    if (!still) stance.animate([{ scale: 1 }, { scale: 0.8 }, { scale: 1 }], 260);
+  const burst = (bx: number, by: number) => {
+    const ring = Object.assign(document.createElement('div'), { className: 'cursor-burst-ring' });
+    ring.style.translate = `${bx}px ${by}px`;
+    document.body.append(ring);
+    ring.animate([{ scale: 0.2, opacity: 0.9 }, { scale: 1, opacity: 0 }], { duration: 520, easing: 'cubic-bezier(0.2, 0.7, 0.1, 1)' }).onfinish = () => ring.remove();
+    for (let i = 0; i < BURST; i++) {
+      const angle = (i / BURST) * 360 + Math.random() * 14;
+      const line = Object.assign(document.createElement('div'), { className: 'cursor-burst-line' });
+      line.style.translate = `${bx}px ${by}px`;
+      line.style.rotate = `${angle}deg`;
+      document.body.append(line);
+      line.animate(
+        [
+          { transform: 'translateX(10px) scaleX(1)', opacity: 1 },
+          { transform: `translateX(${46 + Math.random() * 18}px) scaleX(0.2)`, opacity: 0 },
+        ],
+        { duration: 480, easing: 'cubic-bezier(0.2, 0.7, 0.1, 1)' },
+      ).onfinish = () => line.remove();
+    }
+  };
+  addEventListener('pointerdown', (e) => {
+    if (still) return;
+    stance.animate([{ scale: 1 }, { scale: 0.8 }, { scale: 1 }], 260);
+    burst(e.clientX, e.clientY);
   });
 
   const loop = () => {
