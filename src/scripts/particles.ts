@@ -255,7 +255,7 @@ export async function mountParticles(
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
   camera.position.z = 6;
 
-  const n = mobile ? 14000 : 30000;
+  const n = mobile ? 9000 : 30000;
   const shapes = SHAPES.map(([draw, width, W, H]) => sample(draw, n, width, W, H));
   const geo = new THREE.BufferGeometry();
   const aFrom = new THREE.BufferAttribute(shapes[0].slice(), 3);
@@ -269,7 +269,7 @@ export async function mountParticles(
   const uniforms = {
     uT: { value: 1 },
     uTime: { value: 0 },
-    uSize: { value: 15 * dpr },
+    uSize: { value: (mobile ? 12 : 15) * dpr },
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
