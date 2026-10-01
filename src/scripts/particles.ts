@@ -245,7 +245,7 @@ export async function mountParticles(
     return;
   }
   const mobile = matchMedia('(max-width: 900px)').matches;
-  const dpr = Math.min(devicePixelRatio, mobile ? 1.25 : 2);
+  const dpr = Math.min(devicePixelRatio, mobile ? 1.5 : 2);
   renderer.setPixelRatio(dpr);
   host.prepend(renderer.domElement);
 
@@ -253,7 +253,7 @@ export async function mountParticles(
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
   camera.position.z = 6;
 
-  const n = mobile ? 7000 : 30000;
+  const n = mobile ? 14000 : 30000;
   const shapes = SHAPES.map(([draw, width, W, H]) => sample(draw, n, width, W, H));
   const geo = new THREE.BufferGeometry();
   const aFrom = new THREE.BufferAttribute(shapes[0].slice(), 3);
