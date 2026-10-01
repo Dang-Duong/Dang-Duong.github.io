@@ -139,93 +139,55 @@ h3 {
 }
 
 .cursor-dot,
-.cursor-ring {
+.cursor-ring,
+.cursor-step {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 100;
   pointer-events: none;
   mix-blend-mode: difference;
-  opacity: 0;
 }
 
-.cursor-on .cursor-dot,
-.cursor-on .cursor-ring {
+.cursor-dot,
+.cursor-ring {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cursor-on .cursor-dot {
   opacity: 1;
 }
 
 .cursor-dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
   border-radius: 50%;
   background: #fff;
 }
 
 .cursor-ring {
-  --s: 38px;
-  width: var(--s);
-  height: var(--s);
-  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
   border: 1.5px solid #fff;
   border-radius: 50%;
+  scale: 0.4;
   transition:
     opacity 0.2s,
-    width 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
-    height 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
-    margin 0.3s cubic-bezier(0.2, 0.7, 0.1, 1);
+    scale 0.3s cubic-bezier(0.2, 0.7, 0.1, 1);
 }
 
-.cursor-crown {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  width: 7px;
-  height: 4px;
-  margin-left: -3.5px;
-  border-radius: 1px;
-  background: #fff;
-}
-
-.cursor-hand {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1.5px;
-  height: 38%;
-  border-radius: 1px;
-  background: #fff;
-  transform-origin: 50% 100%;
-  transition: opacity 0.2s;
-}
-
-.cursor-label {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  font: 600 10px var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #fff;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.cursor-ring.hover {
-  --s: 58px;
-}
-
-.cursor-ring.down {
-  --s: 30px;
-}
-
-.cursor-ring.hover .cursor-hand,
-.cursor-ring.lap .cursor-hand {
-  opacity: 0;
-}
-
-.cursor-ring.hover .cursor-label,
-.cursor-ring.lap .cursor-label {
+.cursor-on .cursor-ring.hover {
   opacity: 1;
+  scale: 1;
+}
+
+.cursor-step {
+  width: 12px;
+  height: 22px;
+  margin: -11px 0 0 -6px;
+  fill: #fff;
+  opacity: 0;
 }
