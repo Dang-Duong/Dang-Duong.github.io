@@ -36,7 +36,6 @@ const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).diges
 
   <header class="wrap top">
     <a href="#contact" class="label now"><i class="dot"></i>Open to new projects<span class="more">, hit me up</span></a>
-    <span class="label clock" id="clock">Prague --:--:--</span>
     <nav class="actions">
       <button class="label theme" id="theme" type="button" aria-label="Toggle dark mode">Dark</button>
       <a href="#contact" class="label">Contact</a>
@@ -169,16 +168,6 @@ const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).diges
   };
   themeBtn.addEventListener('click', applyTheme);
 
-  const clock = document.getElementById('clock')!;
-  const fmt = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/Prague',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-  const tick = () => (clock.textContent = `Prague ${fmt.format(new Date())}`);
-  tick();
-  setInterval(tick, 1000);
 </script>
 
 <style>
@@ -218,9 +207,6 @@ const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).diges
     50% {
       opacity: 0.25;
     }
-  }
-  .clock {
-    font-variant-numeric: tabular-nums;
   }
   .actions {
     display: flex;
@@ -460,7 +446,6 @@ const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).diges
     footer {
       padding-top: 42svh;
     }
-    .clock,
     .hint,
     .more {
       display: none;
