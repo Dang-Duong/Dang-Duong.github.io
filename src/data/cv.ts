@@ -41,11 +41,40 @@ export const cv = {
       name: 'Hostivio',
       role: 'Founding engineer',
       text: 'Accommodation SaaS. Built AI guest ID scanning with a vision LLM, the iOS app and Stripe payouts',
+      links: [{ label: 'hostivio.cz', href: 'https://hostivio.cz' }],
     },
     {
       name: 'Pultio',
       role: 'Founding engineer',
       text: 'Point of sale platform with AI agents for venues. Built the back office and barcode restocking',
+      links: [],
+    },
+    {
+      name: 'Smart Flower Pot',
+      role: '',
+      text: 'Arduino plant monitor streaming soil and air data. Built the Next.js dashboard with history charts',
+      links: [
+        { label: 'Live', href: 'https://smart-flower-pot.vercel.app' },
+        { label: 'Code', href: 'https://github.com/Dang-Duong/smart-flower-pot' },
+      ],
+    },
+    {
+      name: 'Trip Planner',
+      role: '',
+      text: 'Group trip planner with a MapLibre map, day timeline, shared checklists and cost splitting',
+      links: [
+        { label: 'Live', href: 'https://trip-planner-ruby-one.vercel.app' },
+        { label: 'Code', href: 'https://github.com/Dang-Duong/trip-planner' },
+      ],
+    },
+    {
+      name: 'Finance Bro',
+      role: '',
+      text: 'Personal finance app for expenses, budgets and savings goals, built with Next.js and TypeScript',
+      links: [
+        { label: 'Live', href: 'https://finance-bro-nu.vercel.app' },
+        { label: 'Code', href: 'https://github.com/Dang-Duong/finance-bro' },
+      ],
     },
   ],
   interests: 'Really into sport, recently started training for my first Ironman.',

@@ -36,8 +36,17 @@ test('CV text has no hyphens or dashes', () => {
   ];
   for (const f of fields) assert.doesNotMatch(f, /[-–—]/, f);
 });
-test('projects list Hostivio and Pultio with AI work', () => {
-  assert.deepEqual(cv.projects.map((p) => p.name), ['Hostivio', 'Pultio']);
+test('projects: products first, then side projects, all linked where live', () => {
+  assert.deepEqual(
+    cv.projects.map((p) => p.name),
+    ['Hostivio', 'Pultio', 'Smart Flower Pot', 'Trip Planner', 'Finance Bro'],
+  );
   assert.match(cv.projects[0].text, /AI/);
-  for (const p of cv.projects) assert.ok(p.text.length <= 110, p.text);
+  for (const p of cv.projects) {
+    assert.ok(p.text.length <= 110, p.text);
+    for (const l of p.links) assert.match(l.href, /^https:\/\//);
+  }
+  for (const name of ['Smart Flower Pot', 'Trip Planner', 'Finance Bro'])
+    assert.equal(cv.projects.find((p) => p.name === name)!.links.length, 2, name);
+  assert.ok(!/school|university project/i.test(JSON.stringify(cv.projects)));
 });

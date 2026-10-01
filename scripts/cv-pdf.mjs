@@ -14,6 +14,13 @@ const entry = (title, date, lines, bullets = []) =>
     bullets.length ? `\\begin{itemize}\n${bullets.map((b) => `  \\item ${tex(b)}`).join('\n')}\n\\end{itemize}` : '',
   ].join('\n');
 
+const project = (p) => {
+  const right = [p.role && `\\emph{${tex(p.role)}}`, ...p.links.map((l) => `\\href{${l.href}}{${tex(l.label)}}`)]
+    .filter(Boolean)
+    .join(' $\\cdot$ ');
+  return `\\textbf{${tex(p.name)}} \\hfill ${right}\n\\\\ ${tex(p.text)}`;
+};
+
 const doc = String.raw`\documentclass{resume}
 \usepackage{fontspec}
 \usepackage[left=0.75in,top=0.6in,right=0.75in,bottom=0.6in]{geometry}
@@ -41,7 +48,7 @@ ${cv.skills.map((s) => `${tex(s.group)}: & ${tex(s.items.join(', '))} \\\\`).joi
 \end{rSection}
 
 \begin{rSection}{Projects}
-${cv.projects.map((p) => entry(p.name, p.role, [p.text])).join('\n\n')}
+${cv.projects.map(project).join('\n\n')}
 \end{rSection}
 
 \begin{rSection}{Interests}
