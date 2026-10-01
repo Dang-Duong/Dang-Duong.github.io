@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const html = String.raw`<!doctype html>
@@ -22,4 +23,14 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, dev
 await page.setContent(html, { waitUntil: 'networkidle' });
 await page.evaluate(() => document.fonts.ready);
 await page.screenshot({ path: 'public/og.png' });
+
+const svg = readFileSync('public/favicon.svg', 'utf8');
+for (const [file, size] of [
+  ['public/favicon-32.png', 32],
+  ['public/apple-touch-icon.png', 180],
+]) {
+  await page.setViewportSize({ width: size, height: size });
+  await page.setContent(`<style>*{margin:0}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`);
+  await page.screenshot({ path: file, omitBackground: true });
+}
 await browser.close();
