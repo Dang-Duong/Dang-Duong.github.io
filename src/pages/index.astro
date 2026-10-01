@@ -1,8 +1,11 @@
 ---
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
 import { cv } from '../data/cv';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).digest('hex').slice(0, 8);
 ---
 
 <Base title={`${cv.name} · ${cv.title}`} description={cv.intro}>
@@ -65,7 +68,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
           </li>
         ))
       }
-      <li><a href={`${base}cv.pdf`} target="_blank" class="cta">Download CV (PDF)</a></li>
+      <li><a href={`${base}cv.pdf?v=${cvVersion}`} target="_blank" class="cta">Download CV (PDF)</a></li>
     </ul>
     <p class="label copy">© {new Date().getFullYear()} {cv.name}</p>
     </div>
