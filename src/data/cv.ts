@@ -75,6 +75,15 @@ export const cv = {
         { label: 'Code', href: 'https://github.com/Dang-Duong/finance-bro' },
       ],
     },
+    {
+      name: 'Pokédex',
+      role: '',
+      text: 'Searchable Pokédex with type filters and GSAP animations, built with Next.js and Tailwind',
+      links: [
+        { label: 'Live', href: 'https://pokedex-kappa-beige-48.vercel.app' },
+        { label: 'Code', href: 'https://github.com/Dang-Duong/pokedex' },
+      ],
+    },
   ],
   interests:
     'Training for my first Ironman. I play football, basketball and volleyball. Love video games.',

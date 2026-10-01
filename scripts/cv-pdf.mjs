@@ -31,7 +31,8 @@ const doc = String.raw`\documentclass{resume}
 \name{${tex(cv.name)}}
 
 \begin{document}
-\printaddress{${tex(cv.phone)} \\ ${tex(cv.email)} \\ \href{https://dduong.dev}{dduong.dev} \\ \href{https://github.com/Dang-Duong}{github.com/Dang-Duong} \\ \href{https://www.linkedin.com/in/dang-duong-nguyen/}{linkedin.com/in/dang-duong-nguyen}}
+\printaddress{${tex(cv.phone)} \\ ${tex(cv.email)}}
+\printaddress{\href{https://dduong.dev}{dduong.dev} \\ \href{https://github.com/Dang-Duong}{github.com/Dang-Duong} \\ \href{https://www.linkedin.com/in/dang-duong-nguyen/}{linkedin.com/in/dang-duong-nguyen}}
 
 \begin{rSection}{Experience}
 ${cv.experience.map((j) => entry(j.company, j.period, [`${j.role} · ${j.type}`], j.bullets)).join('\n\n')}
