@@ -182,6 +182,7 @@ const vertexShader = /* glsl */ `
   uniform vec3 uMouse;
   uniform float uForce;
   uniform vec2 uShock;
+  uniform float uAlpha;
   uniform float uShockT;
   varying float vAlpha;
 
@@ -209,7 +210,7 @@ const vertexShader = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * (0.5 + seed) / -mv.z;
 
-    vAlpha = (0.7 + 0.3 * seed) * smoothstep(-12.0, -4.0, mv.z);
+    vAlpha = (0.7 + 0.3 * seed) * smoothstep(-12.0, -4.0, mv.z) * uAlpha;
   }
 `;
 
@@ -276,6 +277,7 @@ export async function mountParticles(
     uEdge: { value: 0 },
     uShock: { value: new THREE.Vector2(99, 99) },
     uShockT: { value: 1 },
+    uAlpha: { value: 1 },
   };
   let themeUntil = 0;
   const readTheme = () => {
@@ -386,7 +388,8 @@ export async function mountParticles(
     const fit = Math.min(1, (view.halfW * 2 * 0.86) / 4.6);
     const anchorY = view.halfH - ((panelTop + innerHeight * (view.wide ? 0.42 : 0.19)) / H) * 2 * view.halfH;
     from.set(0, view.halfH * (view.wide ? 0.28 : 0.32), 0);
-    to.set(view.halfW * (view.wide ? 0.5 : 0.3), anchorY, 0);
+    to.set(view.wide ? view.halfW * 0.5 : 0, anchorY, 0);
+    uniforms.uAlpha.value = view.wide ? 1 : clamp01(1 + panelTop / (innerHeight * 0.18));
     points.position.lerpVectors(from, to, p);
     points.scale.setScalar(fit * (1 - 0.35 * p));
 
