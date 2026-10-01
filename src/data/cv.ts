@@ -62,7 +62,7 @@ export const cv = {
       role: '',
       text: 'Group trip planner with a MapLibre map, day timeline, shared checklists and cost splitting',
       links: [
-        { label: 'Live', href: 'https://trip-planner-ruby-one.vercel.app' },
+        { label: 'Live', href: 'https://trip.dduong.dev' },
         { label: 'Code', href: 'https://github.com/Dang-Duong/trip-planner' },
       ],
     },
