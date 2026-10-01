@@ -223,7 +223,8 @@ const fragmentShader = /* glsl */ `
     float r = length(gl_PointCoord - 0.5);
     if (r > 0.5) discard;
     vec3 color = gl_FragCoord.y < uEdge ? uPaper : uInk;
-    gl_FragColor = vec4(color, smoothstep(0.5, 0.0, r) * vAlpha);
+    float edge = fwidth(r);
+    gl_FragColor = vec4(color, (1.0 - smoothstep(0.5 - edge * 1.5, 0.5, r)) * vAlpha);
   }
 `;
 
@@ -246,7 +247,7 @@ export async function mountParticles(
     return;
   }
   const mobile = matchMedia('(max-width: 900px)').matches;
-  const dpr = Math.min(devicePixelRatio, mobile ? 1.5 : 2);
+  const dpr = Math.min(devicePixelRatio, 2);
   renderer.setPixelRatio(dpr);
   host.prepend(renderer.domElement);
 
@@ -268,7 +269,7 @@ export async function mountParticles(
   const uniforms = {
     uT: { value: 1 },
     uTime: { value: 0 },
-    uSize: { value: 20 * dpr },
+    uSize: { value: 15 * dpr },
     uMotion: { value: reduced ? 0 : 1 },
     uMouse: { value: new THREE.Vector3(99, 99, 0) },
     uForce: { value: 0 },
