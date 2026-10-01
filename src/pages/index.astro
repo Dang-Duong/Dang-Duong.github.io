@@ -108,7 +108,7 @@ const cvVersion = createHash('sha1').update(readFileSync('public/cv.pdf')).diges
     if (!still) shapeName.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 450, easing: 'ease-out' });
   };
   mountParticles(document.getElementById('particles')!, hero, panel, onProgress, onShape);
-  mountCursor(hero);
+  mountCursor();
 
   let glide = 0;
   const cancelGlide = () => cancelAnimationFrame(glide);

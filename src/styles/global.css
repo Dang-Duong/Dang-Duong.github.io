@@ -147,7 +147,6 @@ h3 {
   pointer-events: none;
   mix-blend-mode: difference;
   opacity: 0;
-  transition: opacity 0.2s;
 }
 
 .cursor-on .cursor-dot,
@@ -164,44 +163,69 @@ h3 {
 }
 
 .cursor-ring {
-  --s: 36px;
+  --s: 38px;
   width: var(--s);
   height: var(--s);
   margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
-  display: grid;
-  place-items: center;
-  border: 1px solid #fff;
+  border: 1.5px solid #fff;
   border-radius: 50%;
   transition:
     opacity 0.2s,
     width 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
     height 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
-    margin 0.3s cubic-bezier(0.2, 0.7, 0.1, 1),
-    background-color 0.3s;
+    margin 0.3s cubic-bezier(0.2, 0.7, 0.1, 1);
 }
 
-.cursor-ring span {
-  font: 500 9px var(--mono);
-  letter-spacing: 0.12em;
+.cursor-crown {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 7px;
+  height: 4px;
+  margin-left: -3.5px;
+  border-radius: 1px;
+  background: #fff;
+}
+
+.cursor-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.5px;
+  height: 38%;
+  border-radius: 1px;
+  background: #fff;
+  transform-origin: 50% 100%;
+  transition: opacity 0.2s;
+}
+
+.cursor-label {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  font: 600 10px var(--mono);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #fff;
   opacity: 0;
   transition: opacity 0.2s;
 }
 
-.cursor-ring.morph {
-  --s: 68px;
-}
-
-.cursor-ring.morph span {
-  opacity: 1;
-}
-
 .cursor-ring.hover {
-  --s: 56px;
-  background: #fff;
+  --s: 58px;
 }
 
 .cursor-ring.down {
-  --s: 22px;
+  --s: 30px;
+}
+
+.cursor-ring.hover .cursor-hand,
+.cursor-ring.lap .cursor-hand {
+  opacity: 0;
+}
+
+.cursor-ring.hover .cursor-label,
+.cursor-ring.lap .cursor-label {
+  opacity: 1;
 }
